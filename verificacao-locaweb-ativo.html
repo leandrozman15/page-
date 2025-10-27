@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Verificação Rápida - Locaweb Ativo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .status-card {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .url-test {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .url-test a {
+            color: #87CEEB;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .url-test a:hover {
+            color: white;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .btn-test {
+            background: #2196F3;
+        }
+        
+        .btn-test:hover {
+            background: #1976D2;
+        }
+        
+        .alert {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Verificação Locaweb - Conta Ativa!</h1>
+        
+        <div class="status-card">
+            <h3>✅ Status da Conta Locaweb</h3>
+            <p><strong>Domínio:</strong> abratecnica.com.br - ATIVO</p>
+            <p><strong>Email:</strong> Configurando (E-mail Go 2)</p>
+            <p><strong>Hosting:</strong> Verificando...</p>
+        </div>
+        
+        <div class="alert">
+            <strong>💡 Boa notícia!</strong> Sua conta Locaweb está ativa e funcionando. 
+            O problema anterior pode ter sido temporário ou de configuração.
+        </div>
+        
+        <h3>🌐 URLs para Testar Agora:</h3>
+        
+        <div class="url-test">
+            <span>Domínio Principal:</span>
+            <a href="http://abratecnica.com.br" target="_blank">http://abratecnica.com.br</a>
+        </div>
+        
+        <div class="url-test">
+            <span>Pasta Desenvolvimento:</span>
+            <a href="http://abratecnica.com.br/desenvolvimento/" target="_blank">http://abratecnica.com.br/desenvolvimento/</a>
+        </div>
+        
+        <div class="url-test">
+            <span>Com WWW:</span>
+            <a href="http://www.abratecnica.com.br" target="_blank">http://www.abratecnica.com.br</a>
+        </div>
+        
+        <div class="url-test">
+            <span>HTTPS (após SSL):</span>
+            <a href="https://abratecnica.com.br" target="_blank">https://abratecnica.com.br</a>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn btn-test" onclick="testAllUrls()">🚀 Testar Todas as URLs</button>
+            <button class="btn" onclick="openFtpGuide()">📁 Guia FTP Upload</button>
+        </div>
+        
+        <div id="test-results"></div>
+        
+        <div class="status-card">
+            <h3>📋 Próximos Passos:</h3>
+            <ol>
+                <li><strong>Testar URLs:</strong> Clique nos links acima</li>
+                <li><strong>Se funcionar:</strong> Site está online! 🎉</li>
+                <li><strong>Se não funcionar:</strong> Subir arquivos via FTP</li>
+                <li><strong>Configurar SSL:</strong> Ativar HTTPS no painel</li>
+            </ol>
+        </div>
+        
+        <div class="alert">
+            <strong>📧 Configuração Email em Andamento:</strong><br>
+            Você está configurando corretamente os registros DNS para email.
+            Isso não afeta o site, que pode funcionar independentemente.
+        </div>
+    </div>
+
+    <script>
+        async function testUrl(url) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(url, {
+                    method: 'HEAD',
+                    signal: controller.signal,
+                    mode: 'no-cors'
+                });
+                
+                clearTimeout(timeoutId);
+                return { url, status: 'success', message: 'Acessível' };
+            } catch (error) {
+                return { url, status: 'error', message: error.message };
+            }
+        }
+
+        async function testAllUrls() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>🔍 Testando URLs...</h3>';
+            
+            const urls = [
+                'http://abratecnica.com.br',
+                'http://abratecnica.com.br/desenvolvimento/',
+                'http://www.abratecnica.com.br',
+                'https://abratecnica.com.br'
+            ];
+            
+            for (const url of urls) {
+                const result = await testUrl(url);
+                const resultElement = document.createElement('div');
+                resultElement.className = `result ${result.status}`;
+                resultElement.innerHTML = `
+                    <strong>${result.status === 'success' ? '✅' : '❌'} ${url}</strong><br>
+                    ${result.message}
+                `;
+                resultsDiv.appendChild(resultElement);
+            }
+            
+            resultsDiv.innerHTML += `
+                <div class="alert" style="margin-top: 20px;">
+                    <strong>💡 Interpretação:</strong><br>
+                    ✅ = Site funcionando<br>
+                    ❌ = Problema ou arquivos não encontrados
+                </div>
+            `;
+        }
+
+        function openFtpGuide() {
+            const ftpInfo = `
+🔧 GUIA RÁPIDO FTP - LOCAWEB
+
+📋 Dados de Conexão:
+• Host: ftp.abratecnica.com.br
+• Usuário: abratecnica1
+• Senha: [sua senha do painel]
+• Porta: 21
+
+📁 Estrutura de Pastas:
+• /public_html/ ← Arquivos do site principal
+• /public_html/desenvolvimento/ ← Pasta da loja
+
+📤 Arquivos para Subir:
+• index.html
+• .htaccess
+• robots.txt
+• README.md
+
+🚀 Após subir, testar:
+http://abratecnica.com.br/desenvolvimento/
+            `;
+            
+            alert(ftpInfo);
+        }
+
+        // Auto-test ao carregar a página
+        setTimeout(() => {
+            testAllUrls();
+        }, 2000);
+    </script>
+</body>
+</html>

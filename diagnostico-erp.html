@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Diagnóstico ERP - Abratecnica</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: #f8f9fa;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 10px 0 0; opacity: 0.9; }
+        
+        .section { 
+            padding: 30px; 
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child { border-bottom: none; }
+        .section h2 { 
+            margin: 0 0 20px; 
+            color: #333; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+        }
+        
+        .config-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .test-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .test-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-body {
+            padding: 20px;
+        }
+        
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status.waiting { background: #fff3cd; color: #856404; }
+        .status.loading { background: #cce5ff; color: #004085; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #5a6fd8; transform: translateY(-1px); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        
+        .response-data {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .url-input:focus { border-color: #667eea; outline: none; }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .alert.info { background: #e7f3ff; border: 1px solid #b3d9ff; color: #0c5460; }
+        .alert.warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Diagnóstico de Conexão ERP</h1>
+            <p>Ferramenta para testar e configurar a conexão com seu Firebase/ERP</p>
+        </div>
+        
+        <div class="section">
+            <h2>📋 1. Configuração Atual</h2>
+            <div class="config-display" id="current-config">
+                Carregando configuração...
+            </div>
+            
+            <div class="alert info">
+                <strong>💡 Para conectar com seu ERP real:</strong><br>
+                1. Substitua a URL base pelo endereço do seu Firebase<br>
+                2. Certifique-se de que os endpoints estão funcionando<br>
+                3. Configure CORS no seu servidor se necessário
+            </div>
+            
+            <h3>🔧 Testar Nova URL:</h3>
+            <input type="url" 
+                   class="url-input" 
+                   id="new-base-url" 
+                   placeholder="https://seu-projeto-firebase.com"
+                   value="https://--studio-1414350373-28e2b.us-central1.hosted.app">
+            <button class="btn" onclick="updateConfig()">Atualizar Configuração</button>
+        </div>
+        
+        <div class="section">
+            <h2>🔍 2. Testes de Conectividade</h2>
+            
+            <div class="test-item">
+                <div class="test-header">
+                    <strong>GET /api/products</strong>
+                    <div>
+                        <span class="status waiting" id="products-status">Aguardando</span>
+                        <button class="btn" onclick="testEndpoint('products')" id="products-btn">Testar</button>
+                    </div>
+                </div>
+                <div class="test-body">
+                    <p>Testa se o endpoint de produtos está funcionando e retornando dados válidos.</p>
+                    <div class="response-data" id="products-response" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-header">
+                    <strong>POST /api/contact</strong>
+                    <div>
+                        <span class="status waiting" id="contact-status">Aguardando</span>
+                        <button class="btn" onclick="testEndpoint('contact')" id="contact-btn">Testar</button>
+                    </div>
+                </div>
+                <div class="test-body">
+                    <p>Testa se o endpoint de contato aceita dados POST.</p>
+                    <div class="response-data" id="contact-response" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-header">
+                    <strong>POST /api/orders</strong>
+                    <div>
+                        <span class="status waiting" id="orders-status">Aguardando</span>
+                        <button class="btn" onclick="testEndpoint('orders')" id="orders-btn">Testar</button>
+                    </div>
+                </div>
+                <div class="test-body">
+                    <p>Testa se o endpoint de pedidos aceita criação de orçamentos.</p>
+                    <div class="response-data" id="orders-response" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <div class="test-header">
+                    <strong>GET /api/inventory/[productId]</strong>
+                    <div>
+                        <span class="status waiting" id="inventory-status">Aguardando</span>
+                        <button class="btn" onclick="testEndpoint('inventory')" id="inventory-btn">Testar</button>
+                    </div>
+                </div>
+                <div class="test-body">
+                    <p>Testa consulta de estoque individual (usa primeiro produto encontrado).</p>
+                    <div class="response-data" id="inventory-response" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 3. Análise de Dados</h2>
+            <div id="data-analysis">
+                <p>Execute os testes acima para ver a análise dos dados retornados pelo seu ERP.</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🚀 4. Ações Recomendadas</h2>
+            <div id="recommendations">
+                <p>As recomendações aparecerão aqui após executar os testes.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        let currentConfig = { ...API_CONFIG };
+        let testResults = {};
+        
+        // Display current configuration
+        function displayCurrentConfig() {
+            document.getElementById('current-config').textContent = 
+                `BASE_URL: ${currentConfig.BASE_URL}\n` +
+                `PRODUCTS: ${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.PRODUCTS}\n` +
+                `CONTACT: ${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.CONTACT}\n` +
+                `ORDERS: ${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.ORDERS}\n` +
+                `INVENTORY: ${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.STOCK}`;
+        }
+        
+        // Update configuration
+        function updateConfig() {
+            const newUrl = document.getElementById('new-base-url').value.trim();
+            if (!newUrl) {
+                alert('Por favor, insira uma URL válida');
+                return;
+            }
+            
+            // Remove trailing slash
+            const cleanUrl = newUrl.replace(/\/$/, '');
+            currentConfig.BASE_URL = cleanUrl;
+            
+            displayCurrentConfig();
+            
+            // Reset all tests
+            const statuses = ['products', 'contact', 'orders', 'inventory'];
+            statuses.forEach(status => {
+                document.getElementById(`${status}-status`).className = 'status waiting';
+                document.getElementById(`${status}-status`).textContent = 'Aguardando';
+                document.getElementById(`${status}-response`).style.display = 'none';
+            });
+            
+            testResults = {};
+            updateRecommendations();
+        }
+        
+        // Test endpoints
+        async function testEndpoint(type) {
+            const statusEl = document.getElementById(`${type}-status`);
+            const responseEl = document.getElementById(`${type}-response`);
+            const btnEl = document.getElementById(`${type}-btn`);
+            
+            statusEl.className = 'status loading';
+            statusEl.textContent = 'Testando...';
+            btnEl.disabled = true;
+            responseEl.style.display = 'none';
+            
+            try {
+                let url, options, testData;
+                
+                switch(type) {
+                    case 'products':
+                        url = `${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.PRODUCTS}`;
+                        options = { method: 'GET' };
+                        break;
+                        
+                    case 'contact':
+                        url = `${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.CONTACT}`;
+                        testData = {
+                            name: "Teste Diagnóstico",
+                            email: "teste@diagnostico.com", 
+                            message: "Teste de conectividade do sistema"
+                        };
+                        options = {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(testData)
+                        };
+                        break;
+                        
+                    case 'orders':
+                        url = `${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.ORDERS}`;
+                        testData = {
+                            clienteId: "cliente_teste_diagnostico",
+                            vendedorNome: "Diagnóstico Sistema",
+                            itens: [{
+                                produtoId: "teste-produto",
+                                quantidade: 1,
+                                valorUnitario: 10.00
+                            }],
+                            condicoesPagamento: "Teste",
+                            observacoes: "Pedido de teste do sistema de diagnóstico"
+                        };
+                        options = {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(testData)
+                        };
+                        break;
+                        
+                    case 'inventory':
+                        // Use first product ID if available
+                        const productId = testResults.products?.data?.[0]?.id || 'produto-teste';
+                        url = `${currentConfig.BASE_URL}${currentConfig.ENDPOINTS.STOCK}/${productId}`;
+                        options = { method: 'GET' };
+                        break;
+                }
+                
+                console.log(`Testing ${type}:`, url, options);
+                
+                const response = await fetch(url, {
+                    ...options,
+                    timeout: 10000
+                });
+                
+                const responseText = await response.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    data = responseText;
+                }
+                
+                testResults[type] = {
+                    success: response.ok,
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data,
+                    url: url
+                };
+                
+                if (response.ok) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = `✅ ${response.status}`;
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = `❌ ${response.status}`;
+                }
+                
+                responseEl.textContent = 
+                    `Status: ${response.status} ${response.statusText}\n` +
+                    `URL: ${url}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+                responseEl.style.display = 'block';
+                
+            } catch (error) {
+                testResults[type] = {
+                    success: false,
+                    error: error.message,
+                    url: url
+                };
+                
+                statusEl.className = 'status error';
+                statusEl.textContent = '❌ Erro';
+                
+                responseEl.textContent = 
+                    `Erro: ${error.message}\n` +
+                    `URL: ${url || 'N/A'}`;
+                responseEl.style.display = 'block';
+            }
+            
+            btnEl.disabled = false;
+            updateAnalysis();
+            updateRecommendations();
+        }
+        
+        // Update data analysis
+        function updateAnalysis() {
+            const analysisEl = document.getElementById('data-analysis');
+            let analysis = '';
+            
+            if (testResults.products) {
+                if (testResults.products.success && Array.isArray(testResults.products.data)) {
+                    const products = testResults.products.data;
+                    analysis += `<h4>📦 Produtos encontrados: ${products.length}</h4>`;
+                    
+                    if (products.length > 0) {
+                        const published = products.filter(p => p.published === true).length;
+                        const withPrice = products.filter(p => p.price && p.price > 0).length;
+                        const withStock = products.filter(p => p.currentStock !== undefined).length;
+                        const withImages = products.filter(p => p.imageUrl).length;
+                        
+                        analysis += `
+                            <ul>
+                                <li><strong>Publicados:</strong> ${published}/${products.length}</li>
+                                <li><strong>Com preço:</strong> ${withPrice}/${products.length}</li>
+                                <li><strong>Com controle de estoque:</strong> ${withStock}/${products.length}</li>
+                                <li><strong>Com imagens:</strong> ${withImages}/${products.length}</li>
+                            </ul>
+                        `;
+                        
+                        // Show first product as example
+                        analysis += `<h5>Exemplo de produto:</h5>`;
+                        analysis += `<pre>${JSON.stringify(products[0], null, 2)}</pre>`;
+                    }
+                } else {
+                    analysis += `<h4>❌ Problema com endpoint de produtos</h4>`;
+                }
+            }
+            
+            analysisEl.innerHTML = analysis || '<p>Execute o teste de produtos para ver a análise.</p>';
+        }
+        
+        // Update recommendations
+        function updateRecommendations() {
+            const recommendationsEl = document.getElementById('recommendations');
+            let recommendations = '<ul>';
+            
+            // Check if any tests were run
+            const hasTests = Object.keys(testResults).length > 0;
+            
+            if (!hasTests) {
+                recommendations += '<li>Execute os testes acima para receber recomendações personalizadas</li>';
+            } else {
+                // Products endpoint recommendations
+                if (testResults.products) {
+                    if (!testResults.products.success) {
+                        recommendations += '<li>🔴 <strong>CRÍTICO:</strong> Endpoint de produtos não está funcionando - verifique a URL e CORS</li>';
+                    } else if (testResults.products.data?.length === 0) {
+                        recommendations += '<li>⚠️ Nenhum produto encontrado - adicione produtos ao seu ERP</li>';
+                    } else {
+                        const published = testResults.products.data?.filter(p => p.published === true).length || 0;
+                        if (published === 0) {
+                            recommendations += '<li>⚠️ Nenhum produto com "published: true" - publique seus produtos no ERP</li>';
+                        } else {
+                            recommendations += '<li>✅ Endpoint de produtos funcionando corretamente</li>';
+                        }
+                    }
+                }
+                
+                // Other endpoints
+                ['contact', 'orders', 'inventory'].forEach(type => {
+                    if (testResults[type]) {
+                        if (testResults[type].success) {
+                            recommendations += `<li>✅ Endpoint ${type} funcionando</li>`;
+                        } else {
+                            recommendations += `<li>🔴 Problema com endpoint ${type}: ${testResults[type].error || testResults[type].status}</li>`;
+                        }
+                    }
+                });
+                
+                // URL recommendation
+                if (currentConfig.BASE_URL.includes('localhost')) {
+                    recommendations += '<li>⚠️ Você está usando localhost - atualize para a URL real do seu Firebase</li>';
+                }
+            }
+            
+            recommendations += '</ul>';
+            recommendationsEl.innerHTML = recommendations;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCurrentConfig();
+            updateRecommendations();
+        });
+    </script>
+</body>
+</html>

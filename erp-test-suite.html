@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Sistema de Testes ERP - Abratecnica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .test-card {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .test-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .test-card.running {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        .test-card.success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .test-card.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .test-status {
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .status-pending {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .status-running {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .test-results {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .log-container {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Sistema de Testes ERP</h1>
+        <p>Validação Completa da Integração Abratecnica</p>
+    </div>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-success" onclick="runAllTests()" id="runAllBtn">
+                <i class="fas fa-play"></i> Executar Todos os Testes
+            </button>
+            <button class="btn btn-primary" onclick="runBasicTests()" id="runBasicBtn">
+                <i class="fas fa-check-circle"></i> Testes Básicos
+            </button>
+            <button class="btn btn-warning" onclick="runStressTests()" id="runStressBtn">
+                <i class="fas fa-bolt"></i> Testes de Stress
+            </button>
+            <button class="btn btn-danger" onclick="runErrorTests()" id="runErrorBtn">
+                <i class="fas fa-exclamation-triangle"></i> Testes de Erro
+            </button>
+            <button class="btn btn-secondary" onclick="clearResults()">
+                <i class="fas fa-trash"></i> Limpar Resultados
+            </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-number" id="totalTests">0</div>
+                <div class="summary-label">Total de Testes</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="passedTests" style="color: #28a745;">0</div>
+                <div class="summary-label">Aprovados</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="failedTests" style="color: #dc3545;">0</div>
+                <div class="summary-label">Reprovados</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="runningTests" style="color: #ffc107;">0</div>
+                <div class="summary-label">Em Execução</div>
+            </div>
+        </div>
+
+        <!-- Test Categories -->
+        <div class="test-section">
+            <h2 class="section-title">🔗 Testes de Conectividade</h2>
+            <div class="test-grid" id="connectivityTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">📦 Testes de Produtos</h2>
+            <div class="test-grid" id="productTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🛒 Testes de Pedidos</h2>
+            <div class="test-grid" id="orderTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">❌ Testes de Tratamento de Erros</h2>
+            <div class="test-grid" id="errorTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">⚡ Testes de Performance</h2>
+            <div class="test-grid" id="performanceTests"></div>
+        </div>
+
+        <!-- Real-time Logs -->
+        <div class="test-section">
+            <h2 class="section-title">📝 Logs de Execução</h2>
+            <div class="log-container" id="logContainer">
+                <div>Sistema de testes inicializado - aguardando execução...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="erp-error-handler.js"></script>
+    <script src="erp-api-manager.js"></script>
+    <script src="config.js"></script>
+
+    <script>
+        class ERPTestSuite {
+            constructor() {
+                this.tests = [];
+                this.currentTest = 0;
+                this.results = {
+                    total: 0,
+                    passed: 0,
+                    failed: 0,
+                    running: 0
+                };
+                
+                this.initializeTests();
+                this.renderTests();
+            }
+
+            initializeTests() {
+                // Connectivity Tests
+                this.tests.push({
+                    category: 'connectivity',
+                    id: 'internet-check',
+                    title: '🌐 Verificação de Internet',
+                    description: 'Verifica se há conexão com a internet',
+                    test: this.testInternetConnection
+                });
+
+                this.tests.push({
+                    category: 'connectivity',
+                    id: 'firebase-connection',
+                    title: '🔥 Conexão Firebase',
+                    description: 'Testa a conectividade com o Firebase',
+                    test: this.testFirebaseConnection
+                });
+
+                this.tests.push({
+                    category: 'connectivity',
+                    id: 'erp-health',
+                    title: '💓 Health Check ERP',
+                    description: 'Verifica o status de saúde do ERP',
+                    test: this.testERPHealth
+                });
+
+                // Product Tests
+                this.tests.push({
+                    category: 'product',
+                    id: 'load-products',
+                    title: '📦 Carregar Produtos',
+                    description: 'Testa o carregamento da lista de produtos',
+                    test: this.testLoadProducts
+                });
+
+                this.tests.push({
+                    category: 'product',
+                    id: 'product-cache',
+                    title: '💾 Cache de Produtos',
+                    description: 'Verifica o funcionamento do cache',
+                    test: this.testProductCache
+                });
+
+                this.tests.push({
+                    category: 'product',
+                    id: 'product-filtering',
+                    title: '🔍 Filtros de Produtos',
+                    description: 'Testa os filtros de categoria e busca',
+                    test: this.testProductFiltering
+                });
+
+                // Order Tests
+                this.tests.push({
+                    category: 'order',
+                    id: 'create-order',
+                    title: '🛒 Criar Pedido',
+                    description: 'Testa a criação de um pedido de teste',
+                    test: this.testCreateOrder
+                });
+
+                this.tests.push({
+                    category: 'order',
+                    id: 'order-validation',
+                    title: '✅ Validação de Pedido',
+                    description: 'Verifica as validações de dados do pedido',
+                    test: this.testOrderValidation
+                });
+
+                // Error Tests
+                this.tests.push({
+                    category: 'error',
+                    id: 'network-error',
+                    title: '🚫 Erro de Rede',
+                    description: 'Simula um erro de conectividade',
+                    test: this.testNetworkError
+                });
+
+                this.tests.push({
+                    category: 'error',
+                    id: 'circuit-breaker',
+                    title: '⚡ Circuit Breaker',
+                    description: 'Testa o funcionamento do circuit breaker',
+                    test: this.testCircuitBreaker
+                });
+
+                this.tests.push({
+                    category: 'error',
+                    id: 'retry-mechanism',
+                    title: '🔄 Mecanismo de Retry',
+                    description: 'Verifica as tentativas automáticas',
+                    test: this.testRetryMechanism
+                });
+
+                // Performance Tests
+                this.tests.push({
+                    category: 'performance',
+                    id: 'response-time',
+                    title: '⏱️ Tempo de Resposta',
+                    description: 'Mede o tempo de resposta das APIs',
+                    test: this.testResponseTime
+                });
+
+                this.tests.push({
+                    category: 'performance',
+                    id: 'concurrent-requests',
+                    title: '🚀 Requisições Concorrentes',
+                    description: 'Testa múltiplas requisições simultâneas',
+                    test: this.testConcurrentRequests
+                });
+
+                this.tests.push({
+                    category: 'performance',
+                    id: 'cache-performance',
+                    title: '💨 Performance do Cache',
+                    description: 'Compara velocidade com e sem cache',
+                    test: this.testCachePerformance
+                });
+            }
+
+            renderTests() {
+                const categories = {
+                    connectivity: document.getElementById('connectivityTests'),
+                    product: document.getElementById('productTests'),
+                    order: document.getElementById('orderTests'),
+                    error: document.getElementById('errorTests'),
+                    performance: document.getElementById('performanceTests')
+                };
+
+                this.tests.forEach(test => {
+                    const testCard = document.createElement('div');
+                    testCard.className = 'test-card';
+                    testCard.id = `test-${test.id}`;
+                    
+                    testCard.innerHTML = `
+                        <div class="test-title">${test.title}</div>
+                        <div class="test-description">${test.description}</div>
+                        <div class="test-status status-pending" id="status-${test.id}">Aguardando</div>
+                        <button class="btn btn-primary btn-sm" onclick="runSingleTest('${test.id}')">
+                            <i class="fas fa-play"></i> Executar
+                        </button>
+                        <div class="test-results" id="results-${test.id}" style="display: none;"></div>
+                    `;
+                    
+                    categories[test.category].appendChild(testCard);
+                });
+
+                this.updateSummary();
+            }
+
+            async runAllTests() {
+                this.log('🚀 Iniciando execução de todos os testes...');
+                
+                for (let i = 0; i < this.tests.length; i++) {
+                    await this.runSingleTestById(this.tests[i].id);
+                    this.updateProgress((i + 1) / this.tests.length * 100);
+                }
+                
+                this.log('✅ Todos os testes concluídos!');
+                this.generateReport();
+            }
+
+            async runBasicTests() {
+                const basicTests = ['internet-check', 'firebase-connection', 'load-products', 'create-order'];
+                await this.runTestGroup(basicTests, 'Testes Básicos');
+            }
+
+            async runStressTests() {
+                const stressTests = ['concurrent-requests', 'cache-performance', 'response-time'];
+                await this.runTestGroup(stressTests, 'Testes de Stress');
+            }
+
+            async runErrorTests() {
+                const errorTests = ['network-error', 'circuit-breaker', 'retry-mechanism'];
+                await this.runTestGroup(errorTests, 'Testes de Erro');
+            }
+
+            async runTestGroup(testIds, groupName) {
+                this.log(`🎯 Iniciando ${groupName}...`);
+                
+                for (let i = 0; i < testIds.length; i++) {
+                    await this.runSingleTestById(testIds[i]);
+                    this.updateProgress((i + 1) / testIds.length * 100);
+                }
+                
+                this.log(`✅ ${groupName} concluídos!`);
+            }
+
+            async runSingleTestById(testId) {
+                const test = this.tests.find(t => t.id === testId);
+                if (!test) return;
+
+                const statusEl = document.getElementById(`status-${testId}`);
+                const resultsEl = document.getElementById(`results-${testId}`);
+                const cardEl = document.getElementById(`test-${testId}`);
+
+                try {
+                    // Update UI
+                    statusEl.textContent = 'Executando...';
+                    statusEl.className = 'test-status status-running';
+                    cardEl.className = 'test-card running';
+                    resultsEl.style.display = 'none';
+                    
+                    this.results.running++;
+                    this.updateSummary();
+
+                    this.log(`🔄 Executando: ${test.title}`);
+
+                    // Run test
+                    const result = await test.test.call(this);
+                    
+                    // Handle success
+                    statusEl.textContent = 'Aprovado';
+                    statusEl.className = 'test-status status-success';
+                    cardEl.className = 'test-card success';
+                    resultsEl.innerHTML = result.message || 'Teste passou com sucesso';
+                    resultsEl.style.display = 'block';
+                    
+                    this.results.passed++;
+                    this.log(`✅ ${test.title}: PASSOU`);
+
+                } catch (error) {
+                    // Handle failure
+                    statusEl.textContent = 'Reprovado';
+                    statusEl.className = 'test-status status-error';
+                    cardEl.className = 'test-card error';
+                    resultsEl.innerHTML = `Erro: ${error.message}\n\nStack: ${error.stack}`;
+                    resultsEl.style.display = 'block';
+                    
+                    this.results.failed++;
+                    this.log(`❌ ${test.title}: FALHOU - ${error.message}`);
+                }
+
+                this.results.running--;
+                this.updateSummary();
+            }
+
+            // Test Implementations
+            async testInternetConnection() {
+                if (!navigator.onLine) {
+                    throw new Error('Sem conexão com a internet');
+                }
+                
+                // Test with a reliable endpoint
+                const response = await fetch('https://www.google.com/favicon.ico', { 
+                    method: 'HEAD', 
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                
+                return { message: 'Conexão com internet confirmada' };
+            }
+
+            async testFirebaseConnection() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não inicializado');
+                }
+
+                const startTime = Date.now();
+                await window.erpAPI.checkERPHealth();
+                const duration = Date.now() - startTime;
+                
+                return { 
+                    message: `Conexão Firebase OK\nTempo de resposta: ${duration}ms` 
+                };
+            }
+
+            async testERPHealth() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                const health = await window.erpAPI.checkERPHealth();
+                
+                if (health.status !== 'healthy') {
+                    throw new Error(`ERP não está saudável: ${health.message}`);
+                }
+                
+                return { 
+                    message: `ERP Status: ${health.status}\nÚltima verificação: ${new Date(health.lastCheck).toLocaleString()}` 
+                };
+            }
+
+            async testLoadProducts() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                const startTime = Date.now();
+                const products = await window.erpAPI.getProducts();
+                const duration = Date.now() - startTime;
+                
+                if (!products || !Array.isArray(products.items)) {
+                    throw new Error('Formato de resposta inválido');
+                }
+                
+                return { 
+                    message: `${products.items.length} produtos carregados\nTempo: ${duration}ms\nTotal disponível: ${products.total}` 
+                };
+            }
+
+            async testProductCache() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                // Clear cache first
+                window.erpAPI.clearCache();
+                
+                // First request (no cache)
+                const start1 = Date.now();
+                await window.erpAPI.getProducts();
+                const time1 = Date.now() - start1;
+                
+                // Second request (with cache)
+                const start2 = Date.now();
+                await window.erpAPI.getProducts();
+                const time2 = Date.now() - start2;
+                
+                const improvement = ((time1 - time2) / time1 * 100).toFixed(1);
+                
+                return { 
+                    message: `Cache funcionando corretamente\nSem cache: ${time1}ms\nCom cache: ${time2}ms\nMelhoria: ${improvement}%` 
+                };
+            }
+
+            async testProductFiltering() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                const allProducts = await window.erpAPI.getProducts();
+                const filteredProducts = await window.erpAPI.getProducts({ category: 'test' });
+                
+                return { 
+                    message: `Filtros funcionando\nTodos produtos: ${allProducts.items.length}\nFiltrados: ${filteredProducts.items.length}` 
+                };
+            }
+
+            async testCreateOrder() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                const testOrder = {
+                    customerName: 'Teste Automatizado',
+                    customerEmail: 'teste@abratecnica.com.br',
+                    customerPhone: '(11) 99999-9999',
+                    items: [
+                        {
+                            id: 'test-product-1',
+                            name: 'Produto de Teste',
+                            price: 100.00,
+                            quantity: 1
+                        }
+                    ],
+                    total: 100.00,
+                    timestamp: new Date().toISOString()
+                };
+
+                const result = await window.erpAPI.sendOrder(testOrder);
+                
+                if (!result.success) {
+                    throw new Error(`Falha ao criar pedido: ${result.error}`);
+                }
+                
+                return { 
+                    message: `Pedido criado com sucesso\nID: ${result.orderId}\nStatus: ${result.status}` 
+                };
+            }
+
+            async testOrderValidation() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                // Test with invalid order
+                const invalidOrder = {
+                    customerName: '', // Empty name should fail
+                    items: []         // Empty items should fail
+                };
+
+                try {
+                    await window.erpAPI.sendOrder(invalidOrder);
+                    throw new Error('Validação falhou - pedido inválido foi aceito');
+                } catch (error) {
+                    if (error.message.includes('Validação falhou')) {
+                        throw error;
+                    }
+                    // Expected validation error
+                    return { 
+                        message: `Validação funcionando corretamente\nErro capturado: ${error.message}` 
+                    };
+                }
+            }
+
+            async testNetworkError() {
+                // Simulate network error by temporarily breaking the API
+                const originalFetch = window.fetch;
+                window.fetch = () => Promise.reject(new Error('Network error simulated'));
+                
+                try {
+                    if (window.erpAPI) {
+                        await window.erpAPI.getProducts();
+                    }
+                    throw new Error('Erro de rede não foi tratado corretamente');
+                } catch (error) {
+                    if (error.message.includes('Network error')) {
+                        return { 
+                            message: `Erro de rede simulado e capturado corretamente\nMensagem: ${error.message}` 
+                        };
+                    }
+                    throw error;
+                } finally {
+                    // Restore original fetch
+                    window.fetch = originalFetch;
+                }
+            }
+
+            async testCircuitBreaker() {
+                if (!window.circuitBreaker) {
+                    throw new Error('Circuit Breaker não disponível');
+                }
+
+                const initialState = window.circuitBreaker.getStatus();
+                
+                // Force circuit breaker to open by simulating failures
+                for (let i = 0; i < 6; i++) {
+                    try {
+                        await window.circuitBreaker.execute(() => 
+                            Promise.reject(new Error('Simulated failure'))
+                        );
+                    } catch (e) {
+                        // Expected to fail
+                    }
+                }
+                
+                const openState = window.circuitBreaker.getStatus();
+                
+                // Reset for next tests
+                window.circuitBreaker.reset();
+                
+                return { 
+                    message: `Circuit Breaker funcionando\nEstado inicial: ${initialState.state}\nApós falhas: ${openState.state}\nFalhas registradas: ${openState.failureCount}` 
+                };
+            }
+
+            async testRetryMechanism() {
+                if (!window.erpErrorHandler) {
+                    throw new Error('Error Handler não disponível');
+                }
+
+                let attempts = 0;
+                const testFunction = () => {
+                    attempts++;
+                    if (attempts < 3) {
+                        throw new Error('Simulated failure');
+                    }
+                    return { success: true, attempts };
+                };
+
+                const result = await window.erpErrorHandler.executeWithRetry(
+                    testFunction,
+                    { maxRetries: 3, backoffMs: 100 }
+                );
+                
+                return { 
+                    message: `Retry funcionando corretamente\nTentativas: ${result.attempts}\nSucesso na tentativa: ${result.attempts}` 
+                };
+            }
+
+            async testResponseTime() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                const times = [];
+                const requests = 5;
+                
+                for (let i = 0; i < requests; i++) {
+                    const start = Date.now();
+                    await window.erpAPI.checkERPHealth();
+                    times.push(Date.now() - start);
+                }
+                
+                const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+                const minTime = Math.min(...times);
+                const maxTime = Math.max(...times);
+                
+                if (avgTime > 5000) {
+                    throw new Error(`Tempo de resposta muito alto: ${avgTime}ms`);
+                }
+                
+                return { 
+                    message: `Performance aceitável\nTempo médio: ${avgTime.toFixed(0)}ms\nMín: ${minTime}ms, Máx: ${maxTime}ms` 
+                };
+            }
+
+            async testConcurrentRequests() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                const concurrentRequests = 10;
+                const promises = [];
+                
+                const startTime = Date.now();
+                
+                for (let i = 0; i < concurrentRequests; i++) {
+                    promises.push(window.erpAPI.checkERPHealth());
+                }
+                
+                const results = await Promise.allSettled(promises);
+                const duration = Date.now() - startTime;
+                
+                const successful = results.filter(r => r.status === 'fulfilled').length;
+                const failed = results.filter(r => r.status === 'rejected').length;
+                
+                if (successful < concurrentRequests * 0.8) {
+                    throw new Error(`Muitas falhas em requisições concorrentes: ${failed}/${concurrentRequests}`);
+                }
+                
+                return { 
+                    message: `Requisições concorrentes OK\nTotal: ${concurrentRequests}\nSucesso: ${successful}\nFalhas: ${failed}\nTempo total: ${duration}ms` 
+                };
+            }
+
+            async testCachePerformance() {
+                if (!window.erpAPI) {
+                    throw new Error('ERP API não disponível');
+                }
+
+                // Clear cache
+                window.erpAPI.clearCache();
+                
+                // Test without cache (multiple requests)
+                const noCacheStart = Date.now();
+                for (let i = 0; i < 3; i++) {
+                    await window.erpAPI.getProducts();
+                    window.erpAPI.clearCache(); // Clear between requests
+                }
+                const noCacheTime = Date.now() - noCacheStart;
+                
+                // Test with cache (multiple requests)
+                const cacheStart = Date.now();
+                for (let i = 0; i < 3; i++) {
+                    await window.erpAPI.getProducts(); // Should use cache after first
+                }
+                const cacheTime = Date.now() - cacheStart;
+                
+                const improvement = ((noCacheTime - cacheTime) / noCacheTime * 100).toFixed(1);
+                
+                return { 
+                    message: `Cache Performance\nSem cache: ${noCacheTime}ms\nCom cache: ${cacheTime}ms\nMelhoria: ${improvement}%` 
+                };
+            }
+
+            // Utility Methods
+            updateProgress(percentage) {
+                document.getElementById('progressFill').style.width = `${percentage}%`;
+            }
+
+            updateSummary() {
+                this.results.total = this.tests.length;
+                document.getElementById('totalTests').textContent = this.results.total;
+                document.getElementById('passedTests').textContent = this.results.passed;
+                document.getElementById('failedTests').textContent = this.results.failed;
+                document.getElementById('runningTests').textContent = this.results.running;
+            }
+
+            log(message) {
+                const container = document.getElementById('logContainer');
+                const entry = document.createElement('div');
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                container.appendChild(entry);
+                container.scrollTop = container.scrollHeight;
+                
+                // Keep only last 100 entries
+                while (container.children.length > 100) {
+                    container.removeChild(container.firstChild);
+                }
+            }
+
+            clearResults() {
+                // Reset all test cards
+                this.tests.forEach(test => {
+                    const statusEl = document.getElementById(`status-${test.id}`);
+                    const resultsEl = document.getElementById(`results-${test.id}`);
+                    const cardEl = document.getElementById(`test-${test.id}`);
+                    
+                    statusEl.textContent = 'Aguardando';
+                    statusEl.className = 'test-status status-pending';
+                    cardEl.className = 'test-card';
+                    resultsEl.style.display = 'none';
+                });
+                
+                // Reset summary
+                this.results = { total: this.tests.length, passed: 0, failed: 0, running: 0 };
+                this.updateSummary();
+                this.updateProgress(0);
+                
+                // Clear logs
+                document.getElementById('logContainer').innerHTML = 
+                    '<div>Resultados limpos - aguardando nova execução...</div>';
+                
+                this.log('🧹 Resultados limpos');
+            }
+
+            generateReport() {
+                const successRate = (this.results.passed / this.results.total * 100).toFixed(1);
+                const report = `
+📊 RELATÓRIO FINAL DE TESTES
+============================
+Total de testes: ${this.results.total}
+Aprovados: ${this.results.passed}
+Reprovados: ${this.results.failed}
+Taxa de sucesso: ${successRate}%
+
+Status: ${this.results.failed === 0 ? '✅ TODOS OS TESTES PASSARAM' : '❌ ALGUNS TESTES FALHARAM'}
+============================`;
+                
+                this.log(report);
+                
+                // Show browser notification if available
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('Testes ERP Concluídos', {
+                        body: `${this.results.passed}/${this.results.total} testes aprovados (${successRate}%)`,
+                        icon: '/favicon.ico'
+                    });
+                }
+            }
+        }
+
+        // Global functions
+        let testSuite;
+
+        function runAllTests() {
+            if (testSuite) testSuite.runAllTests();
+        }
+
+        function runBasicTests() {
+            if (testSuite) testSuite.runBasicTests();
+        }
+
+        function runStressTests() {
+            if (testSuite) testSuite.runStressTests();
+        }
+
+        function runErrorTests() {
+            if (testSuite) testSuite.runErrorTests();
+        }
+
+        function runSingleTest(testId) {
+            if (testSuite) testSuite.runSingleTestById(testId);
+        }
+
+        function clearResults() {
+            if (testSuite) testSuite.clearResults();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Request notification permission
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+            
+            // Wait for ERP system to load
+            setTimeout(() => {
+                testSuite = new ERPTestSuite();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demonstração - Website Abratecnica</title>
+    <link rel="icon" type="image/jpeg" href="logo-ficha.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        :root {
+            --primary-color: #2c5282;
+            --secondary-color: #1a202c;
+            --accent-color: #e53e3e;
+            --accent-secondary: #d69e2e;
+            --text-color: #2d3748;
+        }
+
+        .demo-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .demo-navigation {
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: sticky;
+            top: 120px;
+            z-index: 99;
+        }
+
+        .demo-nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .demo-nav-link {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .demo-nav-link:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .demo-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .demo-card h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-feature {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .demo-feature h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .demo-feature ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .demo-feature li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .demo-feature li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px dashed var(--primary-color);
+            height: 300px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tech-specs {
+            background: var(--secondary-color);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .tech-specs h3 {
+            color: var(--accent-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .contact-demo {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .contact-demo h2 {
+            border: none;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .contact-button {
+            padding: 1rem 2rem;
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .contact-button:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .highlight-box h3 {
+            color: #2e7d32;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .demo-header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-nav-links {
+                gap: 1rem;
+            }
+            
+            .demo-nav-link {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .demo-section {
+                padding: 0 1rem;
+            }
+            
+            .demo-card {
+                padding: 1.5rem;
+            }
+            
+            .contact-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="demo-header">
+        <h1>🚀 Website Abratecnica - Demonstração</h1>
+        <p>Projeto Completo • Outubro 2025 • Pronto para Produção</p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="demo-navigation">
+        <div class="demo-nav-links">
+            <a href="#overview" class="demo-nav-link">Visão Geral</a>
+            <a href="#pages" class="demo-nav-link">Páginas</a>
+            <a href="#features" class="demo-nav-link">Funcionalidades</a>
+            <a href="#technical" class="demo-nav-link">Técnico</a>
+            <a href="#next-steps" class="demo-nav-link">Próximos Passos</a>
+        </div>
+    </div>
+
+    <!-- Overview Section -->
+    <div class="demo-section" id="overview">
+        <div class="demo-card">
+            <h2>📋 Visão Geral do Projeto</h2>
+            
+            <div class="highlight-box">
+                <h3>🎯 Status do Projeto</h3>
+                <div>
+                    <span class="status-badge">✅ Localização PT-BR Completa</span>
+                    <span class="status-badge">✅ SEO Otimizado</span>
+                    <span class="status-badge">✅ E-commerce Funcional</span>
+                    <span class="status-badge">✅ LGPD Compliance</span>
+                    <span class="status-badge">✅ Design Responsivo</span>
+                    <span class="status-badge">✅ Pronto para Produção</span>
+                </div>
+            </div>
+
+            <div class="demo-grid">
+                <div class="demo-feature">
+                    <h3>🌐 Transformação Completa</h3>
+                    <ul>
+                        <li>Conversão total: Espanhol → Português</li>
+                        <li>Adaptação cultural brasileira</li>
+                        <li>Terminologia técnica especializada</li>
+                        <li>SEO para "abrasivos industriais"</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>🛒 E-commerce Profissional</h3>
+                    <ul>
+                        <li>Sistema de variantes com grãos</li>
+                        <li>Carrinho funcional otimizado</li>
+                        <li>Preços dinâmicos por variante</li>
+                        <li>Interface intuitiva</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>⚖️ Compliance Legal</h3>
+                    <ul>
+                        <li>LGPD - Lei de Proteção de Dados</li>
+                        <li>Termos e Condições completos</li>
+                        <li>Política de Garantias detalhada</li>
+                        <li>Central de Suporte profissional</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pages Section -->
+    <div class="demo-section" id="pages">
+        <div class="demo-card">
+            <h2>📄 Páginas Desenvolvidas</h2>
+            
+            <div class="demo-grid">
+                <div class="demo-feature">
+                    <h3>🏠 index.html - Página Principal</h3>
+                    <div class="screenshot-placeholder">
+                        Página Inicial com Hero Section, Produtos em Destaque, Sobre a Empresa
+                    </div>
+                    <ul>
+                        <li>Hero section otimizada para SEO</li>
+                        <li>Descrição amigável da empresa</li>
+                        <li>Showcase de produtos principais</li>
+                        <li>Formulário de contato integrado</li>
+                        <li>Instagram @abratecnica_ltda</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>🔧 productos.html - Catálogo</h3>
+                    <div class="screenshot-placeholder">
+                        Catálogo Completo de Discos Flap, Escovas e Mantas Abrasivas
+                    </div>
+                    <ul>
+                        <li>Catálogo visual organizado</li>
+                        <li>Especificações técnicas</li>
+                        <li>Imagens de alta qualidade</li>
+                        <li>Navegação por categorias</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>🛍️ tienda.html - Loja Virtual</h3>
+                    <div class="screenshot-placeholder">
+                        Sistema de E-commerce com Variantes, Carrinho e Checkout
+                    </div>
+                    <ul>
+                        <li>Sistema de variantes por grão</li>
+                        <li>Indicadores visuais de seleção</li>
+                        <li>Preços dinâmicos no dropdown</li>
+                        <li>Carrinho com imagens otimizadas</li>
+                        <li>Checkout via WhatsApp</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>📋 Páginas Legais</h3>
+                    <div class="screenshot-placeholder">
+                        Termos, Privacidade, Garantias e Suporte Completos
+                    </div>
+                    <ul>
+                        <li><strong>termos-condicoes.html</strong> - Completo</li>
+                        <li><strong>politica-privacidade.html</strong> - LGPD</li>
+                        <li><strong>garantias.html</strong> - Detalhada</li>
+                        <li><strong>suporte.html</strong> - FAQ Interativo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="demo-section" id="features">
+        <div class="demo-card">
+            <h2>⚡ Funcionalidades Implementadas</h2>
+            
+            <div class="demo-grid">
+                <div class="demo-feature">
+                    <h3>🎯 Sistema de Variantes Avançado</h3>
+                    <ul>
+                        <li>Seleção visual de grãos abrasivos</li>
+                        <li>Indicador "Grão Selecionado: XX"</li>
+                        <li>Preços específicos por variante</li>
+                        <li>Validação de seleção obrigatória</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>🛒 Carrinho Otimizado</h3>
+                    <ul>
+                        <li>Imagens dos produtos no carrinho</li>
+                        <li>Sistema de fallback para imagens</li>
+                        <li>Layout responsivo melhorado</li>
+                        <li>Cálculo automático de totais</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>🔍 SEO Profissional</h3>
+                    <ul>
+                        <li>Keywords: "abrasivos industriais"</li>
+                        <li>Meta descriptions otimizadas</li>
+                        <li>Structured Data (JSON-LD)</li>
+                        <li>Open Graph para redes sociais</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>❓ FAQ Interativo</h3>
+                    <ul>
+                        <li>Perguntas organizadas por categoria</li>
+                        <li>Sistema expansível (+/-)</li>
+                        <li>Respostas técnicas detalhadas</li>
+                        <li>JavaScript funcional</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>📱 Design Responsivo</h3>
+                    <ul>
+                        <li>Mobile-first approach</li>
+                        <li>Breakpoints otimizados</li>
+                        <li>Touch-friendly interfaces</li>
+                        <li>Carregamento rápido</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>📞 Múltiplos Canais de Contato</h3>
+                    <ul>
+                        <li>WhatsApp: +55 41 99132-0011</li>
+                        <li>E-mail: claudio.roma@abratecnica.com.br</li>
+                        <li>Instagram: @abratecnica_ltda</li>
+                        <li>Formulários integrados</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Section -->
+    <div class="demo-section" id="technical">
+        <div class="demo-card">
+            <h2>⚙️ Especificações Técnicas</h2>
+            
+            <div class="tech-specs">
+                <h3>🛠️ Tecnologias Utilizadas</h3>
+                <div class="demo-grid">
+                    <div>
+                        <strong>Frontend:</strong>
+                        <ul>
+                            <li>HTML5 Semântico</li>
+                            <li>CSS3 com Variáveis</li>
+                            <li>JavaScript ES6+</li>
+                            <li>Design System Consistente</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>Otimizações:</strong>
+                        <ul>
+                            <li>Performance otimizada</li>
+                            <li>SEO técnico implementado</li>
+                            <li>Compressão de imagens</li>
+                            <li>Lazy loading preparado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-feature">
+                <h3>📊 Melhorias de UX Implementadas</h3>
+                <ul>
+                    <li><strong>Problema:</strong> Cliente não sabia qual grão estava selecionado</li>
+                    <li><strong>Solução:</strong> Indicador visual "Grão Selecionado: 80"</li>
+                    <li><strong>Problema:</strong> Preços das variantes não apareciam</li>
+                    <li><strong>Solução:</strong> Preços dinâmicos no dropdown</li>
+                    <li><strong>Problema:</strong> Imagens não apareciam no carrinho</li>
+                    <li><strong>Solução:</strong> Sistema robusto com fallbacks</li>
+                </ul>
+            </div>
+            
+            <div class="demo-feature">
+                <h3>🌟 Destaques do Desenvolvimento</h3>
+                <ul>
+                    <li>Conversão completa Espanhol → Português</li>
+                    <li>Descrição da empresa mais "modesta e amigável"</li>
+                    <li>Remoção de redes sociais, mantido só Instagram</li>
+                    <li>Sistema de variantes com feedback visual</li>
+                    <li>Páginas legais com compliance LGPD completo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Steps Section -->
+    <div class="demo-section" id="next-steps">
+        <div class="demo-card">
+            <h2>🚀 Próximos Passos</h2>
+            
+            <div class="highlight-box">
+                <h3>✅ Projeto 100% Completo e Pronto!</h3>
+                <p>Todas as funcionalidades solicitadas foram implementadas com sucesso. O website está pronto para ir ao ar.</p>
+            </div>
+            
+            <div class="demo-grid">
+                <div class="demo-feature">
+                    <h3>🌐 Para Publicação</h3>
+                    <ul>
+                        <li>Fazer upload dos arquivos para servidor</li>
+                        <li>Configurar domínio abratecnica.com.br</li>
+                        <li>Configurar SSL (HTTPS)</li>
+                        <li>Testar todos os formulários</li>
+                        <li>Submeter sitemap ao Google</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>📈 Melhorias Futuras (Opcionais)</h3>
+                    <ul>
+                        <li>Sistema de pagamento online</li>
+                        <li>Painel administrativo</li>
+                        <li>Chat online integrado</li>
+                        <li>Blog de conteúdo técnico</li>
+                        <li>Calculadora de consumo</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-feature">
+                    <h3>📊 Analytics e Monitoramento</h3>
+                    <ul>
+                        <li>Google Analytics 4</li>
+                        <li>Google Search Console</li>
+                        <li>Facebook Pixel (opcional)</li>
+                        <li>Monitoramento de performance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="demo-section">
+        <div class="contact-demo">
+            <h2>💬 Vamos Conversar?</h2>
+            <p>O projeto está completo e pronto para aprovação. Entre em contato para discutir os próximos passos ou esclarecer qualquer dúvida sobre as funcionalidades implementadas.</p>
+            
+            <div class="contact-buttons">
+                <a href="index.html" class="contact-button">🏠 Ver Site Principal</a>
+                <a href="tienda.html" class="contact-button">🛒 Testar Loja</a>
+                <a href="suporte.html" class="contact-button">❓ Ver FAQ</a>
+                <a href="https://wa.me/5541991320011?text=Olá! Vi a demonstração do website da Abratecnica e gostaria de conversar sobre o projeto." class="contact-button">📱 WhatsApp</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling para os links de navegação
+        document.querySelectorAll('.demo-nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight da seção ativa na navegação
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.demo-section[id]');
+            const navLinks = document.querySelectorAll('.demo-nav-link');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.style.background = link.getAttribute('href') === '#' + current ? 
+                    'var(--accent-color)' : 'var(--primary-color)';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 Loja Abratecnica - Fix CORS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .status {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-success { border-left: 5px solid #4CAF50; }
+        .status-error { border-left: 5px solid #f44336; }
+        .status-loading { border-left: 5px solid #ff9800; }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .product {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .product:hover {
+            transform: translateY(-5px);
+        }
+        .product img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .product h3 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .product .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 10px 0;
+        }
+        .product .stock {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #2980b9; }
+        .btn-success { background: #27ae60; }
+        .btn-danger { background: #e74c3c; }
+        .log {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        .cart {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛒 Loja Abratecnica</h1>
+        <p>Discos Abrasivos | Rodas de Polimento | Equipamentos Industriais</p>
+    </div>
+
+    <div class="cart" id="cart" onclick="toggleCart()">
+        🛒 Carrinho (<span id="cart-count">0</span>)
+    </div>
+
+    <div class="status status-loading" id="status">
+        <h3>⏳ Carregando produtos...</h3>
+        <p>Conectando com a API via proxy CORS...</p>
+    </div>
+
+    <div class="log" id="log">
+        Sistema iniciado. Tentando carregar produtos...\n
+    </div>
+
+    <div class="products-grid" id="products"></div>
+
+    <script>
+        let products = [];
+        let cart = [];
+
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(type, title, message) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status status-${type}`;
+            statusEl.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+        }
+
+        function updateCartCount() {
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                cart.push(product);
+                updateCartCount();
+                log(`Produto adicionado ao carrinho: ${product.name}`);
+                
+                // Efeito visual
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Adicionado!';
+                btn.style.background = '#27ae60';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#3498db';
+                }, 1500);
+            }
+        }
+
+        function toggleCart() {
+            if (cart.length === 0) {
+                alert('Carrinho vazio');
+                return;
+            }
+
+            let cartText = 'CARRINHO:\n\n';
+            let total = 0;
+            cart.forEach((item, index) => {
+                cartText += `${index + 1}. ${item.name}\nR$ ${item.price.toFixed(2)}\n\n`;
+                total += item.price;
+            });
+            cartText += `TOTAL: R$ ${total.toFixed(2)}`;
+            
+            alert(cartText);
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="status status-error"><h3>❌ Nenhum produto encontrado</h3></div>';
+                return;
+            }
+
+            const productsHTML = products.map(product => {
+                const imageUrl = product.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjYWFhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+U2VtIEltYWdlbTwvdGV4dD48L3N2Zz4=';
+                
+                return `
+                    <div class="product">
+                        <img src="${imageUrl}" alt="${product.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjYWFhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+U2VtIEltYWdlbTwvdGV4dD48L3N2Zz4='">
+                        <h3>${product.name}</h3>
+                        <div class="price">R$ ${product.price ? product.price.toFixed(2) : 'Consulte'}</div>
+                        <div class="stock">Estoque: ${product.currentStock || 0} unidades</div>
+                        <p style="font-size: 12px; color: #666; margin: 10px 0;">${(product.description || '').substring(0, 100)}...</p>
+                        <button class="btn" onclick="addToCart('${product.id}')">🛒 Adicionar</button>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = productsHTML;
+        }
+
+        // Função principal para carregar produtos com proxy CORS
+        async function loadProducts() {
+            log('Iniciando carregamento de produtos...');
+            
+            const apiUrl = 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app/api/products';
+            const proxyUrl = 'https://corsproxy.io/?';
+            
+            updateStatus('loading', '⏳ Conectando...', 'Tentando conexão direta com a API...');
+            
+            try {
+                // Tentativa 1: Conexão direta
+                log('Tentativa 1: Conexão direta com a API');
+                let response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    cache: 'no-cache'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Direct: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                products = data.products || data || [];
+                
+                log(`✅ Conexão direta funcionou! ${products.length} produtos carregados`);
+                updateStatus('success', '✅ Produtos Carregados', `${products.length} produtos encontrados via conexão direta`);
+                
+            } catch (directError) {
+                log(`❌ Conexão direta falhou: ${directError.message}`);
+                
+                // Tentativa 2: Via proxy CORS
+                updateStatus('loading', '🔄 Tentando proxy...', 'Conexão direta falhou. Tentando via proxy CORS...');
+                
+                try {
+                    log('Tentativa 2: Via proxy CORS');
+                    const proxiedUrl = proxyUrl + encodeURIComponent(apiUrl);
+                    
+                    let response = await fetch(proxiedUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        cache: 'no-cache'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Proxy: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    products = data.products || data || [];
+                    
+                    log(`✅ Proxy CORS funcionou! ${products.length} produtos carregados`);
+                    updateStatus('success', '✅ Produtos Carregados (via Proxy)', `${products.length} produtos encontrados via proxy CORS`);
+                    
+                } catch (proxyError) {
+                    log(`❌ Proxy também falhou: ${proxyError.message}`);
+                    
+                    updateStatus('error', '❌ Falha na Conexão', 
+                        `Não foi possível conectar com a API. Erro direto: ${directError.message}. Erro proxy: ${proxyError.message}`);
+                    
+                    // Dados de exemplo para demonstração
+                    products = [
+                        {
+                            id: 'demo-1',
+                            name: 'Disco Flap 115mm - Exemplo',
+                            price: 55.45,
+                            currentStock: 10,
+                            description: 'Produto de demonstração - API indisponível',
+                            imageUrl: ''
+                        }
+                    ];
+                    
+                    log('📦 Carregando produtos de demonstração...');
+                }
+            }
+
+            renderProducts();
+        }
+
+        // Inicialização
+        log('Sistema iniciado - Loja Abratecnica');
+        setTimeout(loadProducts, 1000);
+    </script>
+</body>
+</html>

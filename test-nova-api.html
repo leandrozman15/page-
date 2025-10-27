@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste da Nova API Firebase - Abratecnica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #e74c3c;
+            margin-top: 0;
+        }
+        .button {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #c0392b;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #e74c3c;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            border-left-color: #27ae60;
+            background: #d5f4e6;
+        }
+        .error {
+            border-left-color: #e74c3c;
+            background: #fdeaea;
+        }
+        .info {
+            border-left-color: #3498db;
+            background: #ebf3fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste da Nova API Firebase</h1>
+        <p>Esta página testa a nova integração da API Firebase que retorna produtos com variantes como produtos individuais.</p>
+    </div>
+
+    <div class="container">
+        <div class="test-section">
+            <h3>1. Teste da Função de Agrupamento</h3>
+            <p>Testa se a função <code>groupProductsByBase()</code> funciona corretamente com dados simulados.</p>
+            <button class="button" onclick="testGrouping()">Executar Teste de Agrupamento</button>
+            <div id="grouping-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Teste da API Real</h3>
+            <p>Conecta com a API Firebase real e testa o agrupamento com dados reais.</p>
+            <button class="button" onclick="testRealAPI()">Testar API Real</button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Teste do Sistema de Variantes</h3>
+            <p>Simula a criação de um produto com variantes para verificar se os seletores funcionam.</p>
+            <button class="button" onclick="testVariantSystem()">Testar Sistema de Variantes</button>
+            <div id="variant-result" class="result" style="display: none;"></div>
+            <div id="variant-demo" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- Incluir arquivos necessários -->
+    <script src="config.js"></script>
+    <script>
+        // Dados simulados para teste
+        const sampleAPIResponse = [
+            {
+                id: "disco-abrasivo-grao40",
+                name: "Disco Abrasivo 115mm - Grão 40",
+                code: "DA115-40",
+                price: 25.90,
+                currentStock: 10,
+                grao: "40",
+                diametroExt: "115mm",
+                type: "Disco Abrasivo",
+                published: true,
+                imageUrl: "https://via.placeholder.com/300x200/e74c3c/ffffff?text=Disco+Grao+40"
+            },
+            {
+                id: "disco-abrasivo-grao60",
+                name: "Disco Abrasivo 115mm - Grão 60", 
+                code: "DA115-60",
+                price: 27.90,
+                currentStock: 15,
+                grao: "60",
+                diametroExt: "115mm",
+                type: "Disco Abrasivo",
+                published: true,
+                imageUrl: "https://via.placeholder.com/300x200/e74c3c/ffffff?text=Disco+Grao+60"
+            },
+            {
+                id: "disco-abrasivo-grao80",
+                name: "Disco Abrasivo 115mm - Grão 80",
+                code: "DA115-80", 
+                price: 29.90,
+                currentStock: 8,
+                grao: "80",
+                diametroExt: "115mm",
+                type: "Disco Abrasivo",
+                published: true,
+                imageUrl: "https://via.placeholder.com/300x200/e74c3c/ffffff?text=Disco+Grao+80"
+            },
+            {
+                id: "lixa-madeira",
+                name: "Lixa para Madeira",
+                code: "LM001",
+                price: 5.90,
+                currentStock: 20,
+                type: "Lixa",
+                published: true,
+                imageUrl: "https://via.placeholder.com/300x200/27ae60/ffffff?text=Lixa+Madeira"
+            }
+        ];
+
+        // Função de agrupamento (copiada do script.js)
+        function groupProductsByBase(products) {
+            const grouped = {};
+            
+            products.forEach(product => {
+                // Extrair ID base removendo sufixo de variante
+                const baseId = product.id.includes('-') && product.name.includes(' - ') ? 
+                    product.id.split('-').slice(0, -1).join('-') : product.id;
+                
+                if (!grouped[baseId]) {
+                    // Primeiro produto do grupo - usar como base
+                    const baseName = product.name.includes(' - ') ? 
+                        product.name.split(' - ')[0] : product.name;
+                    grouped[baseId] = {
+                        ...product,
+                        id: baseId,
+                        name: baseName,
+                        variants: [],
+                        description: product.description,
+                        imageUrl: product.imageUrl,
+                        type: product.type,
+                        published: product.published
+                    };
+                }
+                
+                // Se o produto tem sufixo de variante, adicionar como variante
+                if (product.id.includes('-') && product.name.includes(' - ')) {
+                    const variantValue = product.name.split(' - ')[1];
+                    const variantSku = product.id.split('-').slice(-1)[0];
+                    
+                    grouped[baseId].variants.push({
+                        value: variantValue,
+                        sku: variantSku,
+                        price: product.price || 0,
+                        currentStock: product.currentStock || 0,
+                        code: product.code,
+                        grao: product.grao,
+                        diametroExt: product.diametroExt
+                    });
+                    
+                    // Atualizar propriedades do produto base com primeira variante
+                    if (grouped[baseId].variants.length === 1) {
+                        grouped[baseId].price = product.price || grouped[baseId].price;
+                        grouped[baseId].currentStock = product.currentStock || grouped[baseId].currentStock;
+                    }
+                }
+            });
+            
+            return Object.values(grouped);
+        }
+
+        // Teste 1: Agrupamento
+        function testGrouping() {
+            const resultDiv = document.getElementById('grouping-result');
+            resultDiv.style.display = 'block';
+            
+            try {
+                console.log('=== INICIANDO TESTE DE AGRUPAMENTO ===');
+                
+                const grouped = groupProductsByBase(sampleAPIResponse);
+                
+                let result = '✅ TESTE DE AGRUPAMENTO - SUCESSO!\n\n';
+                result += `📊 Produtos originais: ${sampleAPIResponse.length}\n`;
+                result += `📦 Produtos agrupados: ${grouped.length}\n\n`;
+                
+                grouped.forEach((product, index) => {
+                    result += `${index + 1}. ${product.name}\n`;
+                    result += `   ID: ${product.id}\n`;
+                    result += `   Preço: R$ ${product.price}\n`;
+                    result += `   Estoque: ${product.currentStock}\n`;
+                    
+                    if (product.variants && product.variants.length > 0) {
+                        result += `   Variantes (${product.variants.length}):\n`;
+                        product.variants.forEach(variant => {
+                            result += `     - ${variant.value} (${variant.sku}) - R$ ${variant.price} - Estoque: ${variant.currentStock}\n`;
+                        });
+                    } else {
+                        result += `   Sem variantes\n`;
+                    }
+                    result += '\n';
+                });
+                
+                resultDiv.textContent = result;
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                resultDiv.textContent = `❌ ERRO NO TESTE:\n${error.message}\n\n${error.stack}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Teste 2: API Real
+        async function testRealAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '🔄 Conectando com API Firebase...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const products = await window.apiRequest(API_CONFIG.ENDPOINTS.PRODUCTS);
+                
+                let result = '✅ CONEXÃO COM API - SUCESSO!\n\n';
+                result += `📊 Total de produtos retornados: ${products.length}\n\n`;
+                
+                // Mostrar primeiros 5 produtos
+                result += '📋 Primeiros 5 produtos:\n';
+                products.slice(0, 5).forEach((product, index) => {
+                    result += `${index + 1}. ${product.name || 'Sem nome'}\n`;
+                    result += `   ID: ${product.id}\n`;
+                    result += `   Preço: R$ ${product.price || 'N/A'}\n`;
+                    result += `   Estoque: ${product.currentStock || 'N/A'}\n\n`;
+                });
+                
+                // Testar agrupamento com dados reais
+                const grouped = groupProductsByBase(products);
+                result += `🔄 Após agrupamento: ${grouped.length} produtos\n\n`;
+                
+                // Verificar produtos com variantes
+                const withVariants = grouped.filter(p => p.variants && p.variants.length > 0);
+                result += `🎯 Produtos com variantes: ${withVariants.length}\n`;
+                
+                if (withVariants.length > 0) {
+                    result += '\n📦 Exemplo de produto com variantes:\n';
+                    const example = withVariants[0];
+                    result += `   ${example.name}\n`;
+                    result += `   Variantes: ${example.variants.length}\n`;
+                    example.variants.forEach(variant => {
+                        result += `     - ${variant.value} (R$ ${variant.price})\n`;
+                    });
+                }
+                
+                resultDiv.textContent = result;
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                resultDiv.textContent = `❌ ERRO NA API:\n${error.message}\n\nVerifique:\n- Conexão com internet\n- URL da API no config.js\n- CORS configurado`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Teste 3: Sistema de Variantes
+        function testVariantSystem() {
+            const resultDiv = document.getElementById('variant-result');
+            const demoDiv = document.getElementById('variant-demo');
+            
+            resultDiv.style.display = 'block';
+            
+            try {
+                // Agrupar produtos de exemplo
+                const grouped = groupProductsByBase(sampleAPIResponse);
+                const productWithVariants = grouped.find(p => p.variants && p.variants.length > 0);
+                
+                if (productWithVariants) {
+                    let result = '✅ SISTEMA DE VARIANTES - SUCESSO!\n\n';
+                    result += `📦 Produto testado: ${productWithVariants.name}\n`;
+                    result += `🎯 Variantes encontradas: ${productWithVariants.variants.length}\n\n`;
+                    
+                    // Criar demonstração visual
+                    demoDiv.innerHTML = createProductDemo(productWithVariants);
+                    
+                    result += '👆 Demonstração visual criada acima.\n';
+                    result += 'Teste o seletor de variantes para ver se preço e estoque atualizam.';
+                    
+                    resultDiv.textContent = result;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.textContent = '⚠️ Nenhum produto com variantes encontrado nos dados de teste.';
+                    resultDiv.className = 'result info';
+                }
+                
+            } catch (error) {
+                resultDiv.textContent = `❌ ERRO NO SISTEMA DE VARIANTES:\n${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Criar demonstração visual do produto
+        function createProductDemo(product) {
+            const variantOptions = product.variants.map(variant => 
+                `<option value="${variant.sku}" data-price="${variant.price}" data-stock="${variant.currentStock}">
+                    ${variant.value} - R$ ${variant.price.toFixed(2)}
+                </option>`
+            ).join('');
+
+            return `
+                <div style="border: 2px solid #e74c3c; border-radius: 8px; padding: 20px; background: white;">
+                    <h4>${product.name}</h4>
+                    <img src="${product.imageUrl}" alt="${product.name}" style="width: 200px; height: 150px; object-fit: cover;">
+                    
+                    <div style="margin: 15px 0;">
+                        <label>Selecione a variante:</label>
+                        <select id="demo-variant-selector" onchange="updateDemoProduct(this)" style="padding: 8px; margin-left: 10px;">
+                            ${variantOptions}
+                        </select>
+                    </div>
+                    
+                    <div style="margin: 10px 0;">
+                        <strong>Preço: R$ <span id="demo-price">${product.variants[0].price.toFixed(2)}</span></strong>
+                    </div>
+                    
+                    <div style="margin: 10px 0;">
+                        <strong>Estoque: <span id="demo-stock">${product.variants[0].currentStock}</span> unidades</strong>
+                    </div>
+                    
+                    <button style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                        Adicionar ao Carrinho
+                    </button>
+                </div>
+            `;
+        }
+
+        // Atualizar demonstração quando variante muda
+        function updateDemoProduct(selector) {
+            const selectedOption = selector.options[selector.selectedIndex];
+            const price = parseFloat(selectedOption.dataset.price);
+            const stock = parseInt(selectedOption.dataset.stock);
+            
+            document.getElementById('demo-price').textContent = price.toFixed(2);
+            document.getElementById('demo-stock').textContent = stock;
+            
+            console.log('Variante selecionada:', {
+                value: selectedOption.text,
+                price: price,
+                stock: stock
+            });
+        }
+    </script>
+</body>
+</html>

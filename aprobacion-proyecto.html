@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Abratecnica – Preaprobación del nuevo sitio y app ERP</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --muted:#9ca3af; --ok:#10b981; --warn:#f59e0b; --brand:#00b3a6; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0f172a,#0b1224);color:#e5e7eb}
+    .wrap{max-width:980px;margin:32px auto;padding:24px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#00b3a6,#38bdf8);display:inline-flex;align-items:center;justify-content:center;color:#001b18;font-weight:800}
+    h1{font-size:28px;margin:0}
+    .subtitle{color:var(--muted)}
+    .card{background:rgba(17,24,39,.6);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;margin:14px 0}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+    h2{font-size:20px;margin:0 0 10px}
+    ul{margin:8px 0 0 18px}
+    li{margin:6px 0}
+    .kpi{display:flex;align-items:center;gap:8px;color:#c7d2fe}
+    .ok{color:var(--ok)}
+    .warn{color:var(--warn)}
+    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    a.btn{display:inline-block;background:linear-gradient(135deg,#00b3a6,#14b8a6);color:#012a27;text-decoration:none;font-weight:700;border-radius:10px;padding:12px 16px}
+    a.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,.15);color:#e5e7eb}
+    .checklist label{display:flex;align-items:flex-start;gap:10px;margin:8px 0}
+    .foot{margin-top:26px;color:var(--muted);font-size:13px}
+    code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">A</div>
+      <div>
+        <h1>Abratecnica — Preaprobación del nuevo sitio y app ERP</h1>
+        <div class="subtitle">Entrega para validación visual y funcional antes de publicación definitiva.</div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <h2>Resumen ejecutivo</h2>
+          <ul>
+            <li>Diseño unificado (home, productos, tienda).</li>
+            <li>Integración ERP con cliente robusto (reintentos/timeout, fallback GET).</li>
+            <li>API local en hosting (PHP 5.6 + MySQL) para pedidos y contacto.</li>
+            <li>Checkout con notificación por email a internos.</li>
+            <li>Páginas legales y soporte actualizadas.</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Estado técnico</h2>
+          <ul>
+            <li class="kpi ok">API PHP lista: <code>/api/orders.php</code>, <code>/api/contact.php</code></li>
+            <li class="kpi ok">DB: <code>abratecnica</code> configurada (utf8mb4)</li>
+            <li class="kpi warn">DNS .com: migración a Locaweb en curso</li>
+            <li class="kpi ok">DNS .com.br: A y CNAME creados</li>
+            <li class="kpi warn">SSL: se activará tras propagación</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Accesos de prueba</h2>
+          <ul>
+            <li>Home (local): <code>index.html</code></li>
+            <li>Tienda (local): <code>tienda.html</code></li>
+            <li>Productos (local): <code>productos.html</code></li>
+            <li>Salud API: <code>/api/health.php</code></li>
+          </ul>
+          <p class="subtitle" style="margin-top:8px">Nota: si abriste este archivo desde WhatsApp/Drive (especialmente en iPhone), los accesos locales pueden no abrirse. En ese caso, abre el ZIP en una carpeta y ejecuta el archivo dentro de la misma carpeta en un computador; o usa los accesos públicos cuando el dominio esté vinculado.</p>
+          <div class="btns">
+            <a class="btn secondary" href="index.html" target="_blank" rel="noopener">Abrir Home local</a>
+            <a class="btn secondary" href="tienda.html" target="_blank" rel="noopener">Abrir Tienda local</a>
+          </div>
+          <div class="btns">
+            <a class="btn" href="http://abratecnica.com.br/" target="_blank" rel="noopener">Abrir Home pública</a>
+            <a class="btn" href="http://abratecnica.com.br/tienda.html" target="_blank" rel="noopener">Abrir Tienda pública</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Alcance entregado</h2>
+      <ul>
+        <li>Catálogo y tienda con carrito, filtros y paginación.</li>
+        <li>Checkout conectado al ERP y a API local (fallback por email).</li>
+        <li>Notificaciones por email: <code>claudio.roma@abratecnica.com.br</code> y <code>leandro.zuleiman@abratecnica.com.br</code>.</li>
+        <li>Páginas legales: Términos, Privacidad, Garantías, Soporte.</li>
+        <li>Script de despliegue por FTP y configuración de DNS.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Checklist de aprobación</h2>
+      <div class="checklist">
+        <label><input type="checkbox"/> Diseño y navegación general</label>
+        <label><input type="checkbox"/> Catálogo de productos (cargas, tarjetas, filtros)</label>
+        <label><input type="checkbox"/> Carrito y checkout (flujo, mensajes, totales)</label>
+        <label><input type="checkbox"/> Notificaciones por email (post checkout y fallback)</label>
+        <label><input type="checkbox"/> Páginas legales y de soporte</label>
+        <label><input type="checkbox"/> Textos, teléfonos y correos corporativos</label>
+      </div>
+      <div class="btns">
+  <a class="btn" href="mailto:claudio.roma@abratecnica.com.br,leandro.zuleiman@abratecnica.com.br?subject=Aprobaci%C3%B3n%20sitio%20Abratecnica&body=Confirmo%20la%20aprobaci%C3%B3n%20visual%20y%20funcional%20del%20sitio.%0AComentarios%20(finales)%3A%20">Aprobar ahora por email</a>
+        <a class="btn secondary" href="mailto:claudio.roma@abratecnica.com.br?subject=Observaciones%20sitio%20Abratecnica&body=Anoto%20aqui%20mis%20observaciones%20y%20ajustes%20finales%3A%0A-">Enviar observaciones</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Siguientes pasos al aprobar</h2>
+      <ol>
+        <li>Activación de SSL (Let’s Encrypt) y forzado de HTTPS.</li>
+        <li>Conmutar checkout/contacto a API local definitiva.</li>
+        <li>Publicación al dominio final y pruebas de humo.</li>
+      </ol>
+    </div>
+
+    <div class="foot">© <span id="y"></span> Abratecnica · Preaprobación · By SW infolink</div>
+  </div>
+  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>

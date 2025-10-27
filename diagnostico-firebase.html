@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Diagnóstico Firebase - Abratecnica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+
+        .diagnostic-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+        .status-unknown { background: #6c757d; }
+
+        .test-result {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .warning { border-left: 4px solid #ffc107; }
+        .info { border-left: 4px solid #17a2b8; }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .log-container {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Diagnóstico Firebase</h1>
+            <p>Teste de Conectividade e Retorno de Dados</p>
+        </div>
+
+        <!-- Configuração de URL -->
+        <div class="diagnostic-section">
+            <h2 class="section-title">⚙️ Configuração da API</h2>
+            <label for="apiUrl">URL Base da API Firebase:</label>
+            <input type="text" id="apiUrl" class="url-input" 
+                   value="https://studio--firebase-explorer-7hc2p.us-central1.hosted.app"
+                   placeholder="Cole aqui a URL da sua API Firebase">
+            <div style="margin-top: 1rem;">
+                <button class="btn btn-primary" onclick="updateApiUrl()">
+                    <i class="fas fa-save"></i> Salvar URL
+                </button>
+                <button class="btn btn-warning" onclick="resetApiUrl()">
+                    <i class="fas fa-undo"></i> Resetar
+                </button>
+            </div>
+        </div>
+
+        <!-- Status da Conexão -->
+        <div class="diagnostic-section">
+            <h2 class="section-title">
+                🔗 Status da Conexão
+                <span class="status-indicator status-unknown" id="connectionStatus"></span>
+            </h2>
+            
+            <div class="grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="connectivityStatus">?</div>
+                    <div class="metric-label">Status Geral</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="lastResponseTime">0ms</div>
+                    <div class="metric-label">Último Tempo</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="successRate">0%</div>
+                    <div class="metric-label">Taxa de Sucesso</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="totalRequests">0</div>
+                    <div class="metric-label">Total Requests</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testes Disponíveis -->
+        <div class="diagnostic-section">
+            <h2 class="section-title">🧪 Testes Disponíveis</h2>
+            
+            <button class="btn btn-primary" onclick="testConnection()">
+                <i class="fas fa-plug"></i> Testar Conexão Básica
+            </button>
+            
+            <button class="btn btn-success" onclick="testProducts()">
+                <i class="fas fa-box"></i> Testar Carregamento de Produtos
+            </button>
+            
+            <button class="btn btn-warning" onclick="testOrderCreation()">
+                <i class="fas fa-shopping-cart"></i> Testar Criação de Orçamento
+            </button>
+            
+            <button class="btn btn-success" onclick="testContact()">
+                <i class="fas fa-envelope"></i> Testar API de Contato
+            </button>
+            
+            <button class="btn btn-primary" onclick="testInventory()">
+                <i class="fas fa-warehouse"></i> Testar API de Estoque
+            </button>
+            
+            <button class="btn btn-danger" onclick="testErrorHandling()">
+                <i class="fas fa-exclamation-triangle"></i> Testar Tratamento de Erros
+            </button>
+            
+            <button class="btn btn-primary" onclick="runAllTests()">
+                <i class="fas fa-play"></i> Executar Todos os Testes
+            </button>
+            
+            <button class="btn btn-success" onclick="clearLogs()">
+                <i class="fas fa-trash"></i> Limpar Logs
+            </button>
+        </div>
+
+        <!-- Resultados dos Testes -->
+        <div class="diagnostic-section">
+            <h2 class="section-title">📋 Resultados dos Testes</h2>
+            <div class="test-result" id="testResults">
+Aguardando execução de testes...
+            </div>
+        </div>
+
+        <!-- Logs em Tempo Real -->
+        <div class="diagnostic-section">
+            <h2 class="section-title">📝 Logs em Tempo Real</h2>
+            <div class="log-container" id="logContainer">
+                <div>[INFO] Sistema de diagnóstico inicializado</div>
+            </div>
+        </div>
+
+        <!-- Informações de Debug -->
+        <div class="diagnostic-section">
+            <h2 class="section-title">🔍 Debug Information</h2>
+            <div class="test-result info" id="debugInfo">
+Carregando informações de debug...
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="firebase-integration-fix.js"></script>
+
+    <script>
+        class FirebaseDiagnostic {
+            constructor() {
+                this.apiUrl = 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app';
+                this.metrics = {
+                    totalRequests: 0,
+                    successfulRequests: 0,
+                    failedRequests: 0,
+                    lastResponseTime: 0
+                };
+                
+                this.initializeDiagnostic();
+            }
+
+            initializeDiagnostic() {
+                this.log('🔥 Iniciando diagnóstico Firebase...');
+                this.updateDebugInfo();
+                this.loadSavedUrl();
+            }
+
+            loadSavedUrl() {
+                const savedUrl = localStorage.getItem('firebase_api_url');
+                if (savedUrl) {
+                    this.apiUrl = savedUrl;
+                    document.getElementById('apiUrl').value = savedUrl;
+                    this.log(`📂 URL carregada: ${savedUrl}`);
+                }
+            }
+
+            updateApiUrl() {
+                const newUrl = document.getElementById('apiUrl').value.trim();
+                if (!newUrl) {
+                    this.log('❌ URL não pode estar vazia', 'error');
+                    return;
+                }
+
+                this.apiUrl = newUrl;
+                localStorage.setItem('firebase_api_url', newUrl);
+                this.log(`💾 URL salva: ${newUrl}`, 'success');
+                this.updateDebugInfo();
+            }
+
+            resetApiUrl() {
+                const defaultUrl = 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app';
+                this.apiUrl = defaultUrl;
+                document.getElementById('apiUrl').value = defaultUrl;
+                localStorage.removeItem('firebase_api_url');
+                this.log('🔄 URL resetada para padrão', 'info');
+                this.updateDebugInfo();
+            }
+
+            async makeRequest(endpoint, options = {}) {
+                const url = `${this.apiUrl}${endpoint}`;
+                const startTime = Date.now();
+                
+                this.metrics.totalRequests++;
+                this.updateMetrics();
+
+                try {
+                    this.log(`🔄 Fazendo requisição: ${endpoint}`);
+                    
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        ...options
+                    });
+
+                    const responseTime = Date.now() - startTime;
+                    this.metrics.lastResponseTime = responseTime;
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    this.metrics.successfulRequests++;
+                    this.updateMetrics();
+
+                    this.log(`✅ Requisição bem-sucedida (${responseTime}ms)`, 'success');
+                    return data;
+
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    this.metrics.lastResponseTime = responseTime;
+                    this.metrics.failedRequests++;
+                    this.updateMetrics();
+
+                    this.log(`❌ Requisição falhou (${responseTime}ms): ${error.message}`, 'error');
+                    throw error;
+                }
+            }
+
+            async testConnection() {
+                this.log('🔍 Testando conexão básica...');
+                this.addTestResult('Teste de Conexão Básica', 'Iniciando...');
+
+                try {
+                    // Teste 1: Status endpoint
+                    try {
+                        const statusResult = await this.makeRequest('/api/status');
+                        this.addTestResult('✅ Status Endpoint', JSON.stringify(statusResult, null, 2));
+                    } catch (error) {
+                        this.addTestResult('❌ Status Endpoint', `Erro: ${error.message}`);
+                    }
+
+                    // Teste 2: Conectividade básica
+                    const connectTest = await fetch(this.apiUrl, { method: 'HEAD', mode: 'no-cors' });
+                    this.addTestResult('✅ Conectividade Básica', 'Servidor acessível');
+
+                    // Teste 3: CORS
+                    try {
+                        await fetch(`${this.apiUrl}/api/status`, { method: 'OPTIONS' });
+                        this.addTestResult('✅ CORS', 'Headers CORS configurados');
+                    } catch (error) {
+                        this.addTestResult('⚠️  CORS', `Possível problema: ${error.message}`);
+                    }
+
+                    this.updateConnectionStatus('success');
+                    
+                } catch (error) {
+                    this.addTestResult('❌ Conexão Básica', `Falha geral: ${error.message}`);
+                    this.updateConnectionStatus('error');
+                }
+            }
+
+            async testProducts() {
+                this.log('📦 Testando carregamento de produtos...');
+                this.addTestResult('Teste de Produtos', 'Carregando produtos...');
+
+                try {
+                    const products = await this.makeRequest('/api/products');
+                    
+                    if (Array.isArray(products)) {
+                        this.addTestResult('✅ Produtos Carregados', 
+                            `${products.length} produtos encontrados\n\n` +
+                            `Exemplo:\n${JSON.stringify(products[0] || {}, null, 2)}`
+                        );
+                        
+                        // Testar agrupamento de variantes
+                        if (window.firebaseERP) {
+                            const grouped = window.firebaseERP.groupProductsByBase(products);
+                            this.addTestResult('✅ Agrupamento de Variantes', 
+                                `${Object.keys(grouped).length} grupos criados`
+                            );
+                        }
+                        
+                    } else {
+                        this.addTestResult('⚠️  Produtos', 'Formato inesperado: ' + typeof products);
+                    }
+
+                } catch (error) {
+                    this.addTestResult('❌ Produtos', `Erro: ${error.message}`);
+                }
+            }
+
+            async testOrderCreation() {
+                this.log('🛒 Testando criação de orçamento...');
+                this.addTestResult('Teste de Orçamento', 'Criando orçamento de teste...');
+
+                const testOrder = {
+                    clienteId: 'test_client_diagnostic',
+                    vendedorNome: 'Sistema de Diagnóstico',
+                    condicoesPagamento: 'Teste',
+                    observacoes: 'Teste automatizado - ' + new Date().toISOString(),
+                    itens: [
+                        {
+                            produtoId: 'test-product-1',
+                            quantidade: 1,
+                            valorUnitario: 100.00
+                        }
+                    ]
+                };
+
+                try {
+                    const response = await this.makeRequest('/api/orcamentos', {
+                        method: 'POST',
+                        body: JSON.stringify(testOrder)
+                    });
+
+                    // NOVA ESTRUTURA: A API retorna um array
+                    const responseData = Array.isArray(response) ? response[0] : response;
+                    
+                    this.addTestResult('📡 Resposta Raw', JSON.stringify(response, null, 2));
+
+                    if (responseData && responseData.success) {
+                        this.addTestResult('✅ Orçamento Criado', 
+                            `ID: ${responseData.orcamentoId}\n` +
+                            `Número: ${responseData.orcamentoNumero}\n` +
+                            `Mensagem: ${responseData.message}`
+                        );
+                    } else {
+                        this.addTestResult('❌ Orçamento', 
+                            `Falha: ${responseData?.error || responseData?.details || 'Resposta inválida'}`
+                        );
+                    }
+
+                } catch (error) {
+                    this.addTestResult('❌ Orçamento', `Erro na requisição: ${error.message}`);
+                }
+            }
+
+            async testContact() {
+                this.log('📧 Testando API de contato...');
+                this.addTestResult('Teste de Contato', 'Enviando mensagem de teste...');
+
+                const testContact = {
+                    name: 'Sistema de Diagnóstico',
+                    email: 'diagnostico@abratecnica.com.br',
+                    message: 'Teste automatizado de contato - ' + new Date().toISOString()
+                };
+
+                try {
+                    const response = await this.makeRequest('/api/contact', {
+                        method: 'POST',
+                        body: JSON.stringify(testContact)
+                    });
+
+                    const responseData = Array.isArray(response) ? response[0] : response;
+                    
+                    if (responseData && responseData.success) {
+                        this.addTestResult('✅ Contato Enviado', responseData.message);
+                    } else {
+                        this.addTestResult('❌ Contato', `Falha: ${responseData?.error || 'Resposta inválida'}`);
+                    }
+
+                } catch (error) {
+                    this.addTestResult('❌ Contato', `Erro na requisição: ${error.message}`);
+                }
+            }
+
+            async testInventory() {
+                this.log('📊 Testando API de estoque...');
+                this.addTestResult('Teste de Estoque', 'Verificando estoque de produto...');
+
+                try {
+                    const response = await this.makeRequest('/api/inventory/test-product-1');
+                    const responseData = Array.isArray(response) ? response[0] : response;
+                    
+                    if (responseData && !responseData.error) {
+                        this.addTestResult('✅ Estoque Verificado', 
+                            `Produto: ${responseData.productId}\nEstoque: ${responseData.stock}`
+                        );
+                    } else {
+                        this.addTestResult('⚠️  Estoque', `Produto não encontrado: ${responseData?.error}`);
+                    }
+
+                } catch (error) {
+                    this.addTestResult('❌ Estoque', `Erro na requisição: ${error.message}`);
+                }
+            }
+
+            async testErrorHandling() {
+                this.log('⚠️  Testando tratamento de erros...');
+                this.addTestResult('Teste de Erros', 'Testando diferentes cenários de erro...');
+
+                // Teste 1: Endpoint inexistente
+                try {
+                    await this.makeRequest('/api/endpoint-inexistente');
+                    this.addTestResult('⚠️  Endpoint Inexistente', 'Deveria ter falhado');
+                } catch (error) {
+                    this.addTestResult('✅ Endpoint Inexistente', `Erro capturado corretamente: ${error.message}`);
+                }
+
+                // Teste 2: Dados inválidos para orçamento
+                try {
+                    const response = await this.makeRequest('/api/orcamentos', {
+                        method: 'POST',
+                        body: JSON.stringify({ dados: 'inválidos' })
+                    });
+                    
+                    const responseData = Array.isArray(response) ? response[0] : response;
+                    if (responseData && responseData.success) {
+                        this.addTestResult('⚠️  Dados Inválidos', 'Deveria ter rejeitado dados inválidos');
+                    } else {
+                        this.addTestResult('✅ Validação de Dados', `Erro capturado: ${responseData?.error}`);
+                    }
+                } catch (error) {
+                    this.addTestResult('✅ Dados Inválidos', `Validação funcionando: ${error.message}`);
+                }
+
+                // Teste 3: Produto inexistente no estoque
+                try {
+                    const response = await this.makeRequest('/api/inventory/produto-inexistente');
+                    const responseData = Array.isArray(response) ? response[0] : response;
+                    
+                    if (responseData && responseData.error) {
+                        this.addTestResult('✅ Produto Inexistente', `Erro apropriado: ${responseData.error}`);
+                    } else {
+                        this.addTestResult('⚠️  Produto Inexistente', 'Deveria ter retornado erro');
+                    }
+                } catch (error) {
+                    this.addTestResult('✅ Produto Inexistente', `Erro capturado: ${error.message}`);
+                }
+
+                this.addTestResult('✅ Tratamento de Erros', 'Testes de erro concluídos');
+            }
+
+            async runAllTests() {
+                this.log('🚀 Executando todos os testes...');
+                this.clearTestResults();
+                
+                await this.testConnection();
+                await this.sleep(1000);
+                
+                await this.testProducts();
+                await this.sleep(1000);
+                
+                await this.testOrderCreation();
+                await this.sleep(1000);
+                
+                await this.testContact();
+                await this.sleep(1000);
+                
+                await this.testInventory();
+                await this.sleep(1000);
+                
+                await this.testErrorHandling();
+                
+                this.log('✅ Todos os testes concluídos!', 'success');
+                this.addTestResult('🏁 Resumo Final', this.generateTestSummary());
+            }
+
+            generateTestSummary() {
+                const successRate = this.metrics.totalRequests > 0 
+                    ? Math.round((this.metrics.successfulRequests / this.metrics.totalRequests) * 100)
+                    : 0;
+
+                return `Total de Requests: ${this.metrics.totalRequests}
+Sucessos: ${this.metrics.successfulRequests}
+Falhas: ${this.metrics.failedRequests}
+Taxa de Sucesso: ${successRate}%
+Último Tempo de Resposta: ${this.metrics.lastResponseTime}ms
+
+Status: ${successRate >= 75 ? '✅ Sistema Operacional' : '⚠️  Requer Atenção'}`;
+            }
+
+            updateConnectionStatus(status) {
+                const indicator = document.getElementById('connectionStatus');
+                indicator.className = `status-indicator status-${status}`;
+                
+                const statusText = document.getElementById('connectivityStatus');
+                statusText.textContent = status === 'success' ? 'Online' : 
+                                       status === 'error' ? 'Offline' : 'Unknown';
+            }
+
+            updateMetrics() {
+                document.getElementById('totalRequests').textContent = this.metrics.totalRequests;
+                document.getElementById('lastResponseTime').textContent = `${this.metrics.lastResponseTime}ms`;
+                
+                const rate = this.metrics.totalRequests > 0 
+                    ? Math.round((this.metrics.successfulRequests / this.metrics.totalRequests) * 100)
+                    : 0;
+                document.getElementById('successRate').textContent = `${rate}%`;
+            }
+
+            updateDebugInfo() {
+                const info = `URL da API: ${this.apiUrl}
+Navegador: ${navigator.userAgent}
+Online: ${navigator.onLine}
+Timestamp: ${new Date().toISOString()}
+LocalStorage Firebase Errors: ${localStorage.getItem('firebase_errors') ? 'Presente' : 'Vazio'}
+Window.firebaseERP: ${window.firebaseERP ? 'Inicializado' : 'Não encontrado'}`;
+
+                document.getElementById('debugInfo').textContent = info;
+            }
+
+            addTestResult(title, result) {
+                const container = document.getElementById('testResults');
+                container.innerHTML += `\n\n=== ${title} ===\n${result}`;
+                container.scrollTop = container.scrollHeight;
+            }
+
+            clearTestResults() {
+                document.getElementById('testResults').textContent = 'Testes em execução...\n';
+            }
+
+            log(message, type = 'info') {
+                const container = document.getElementById('logContainer');
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.textContent = `[${timestamp}] ${message}`;
+                entry.style.color = type === 'error' ? '#ff6b6b' : 
+                                   type === 'success' ? '#51cf66' : 
+                                   type === 'warning' ? '#ffd43b' : '#e2e8f0';
+                
+                container.appendChild(entry);
+                container.scrollTop = container.scrollHeight;
+                
+                // Manter apenas últimas 100 entradas
+                while (container.children.length > 100) {
+                    container.removeChild(container.firstChild);
+                }
+            }
+
+            clearLogs() {
+                document.getElementById('logContainer').innerHTML = '';
+                document.getElementById('testResults').textContent = 'Logs limpos. Aguardando novos testes...';
+                this.log('🧹 Logs limpos');
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Funções globais para os botões
+        let diagnostic;
+
+        function updateApiUrl() { diagnostic.updateApiUrl(); }
+        function resetApiUrl() { diagnostic.resetApiUrl(); }
+        function testConnection() { diagnostic.testConnection(); }
+        function testProducts() { diagnostic.testProducts(); }
+        function testOrderCreation() { diagnostic.testOrderCreation(); }
+        function testContact() { diagnostic.testContact(); }
+        function testInventory() { diagnostic.testInventory(); }
+        function testErrorHandling() { diagnostic.testErrorHandling(); }
+        function runAllTests() { diagnostic.runAllTests(); }
+        function clearLogs() { diagnostic.clearLogs(); }
+
+        // Inicializar quando página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            diagnostic = new FirebaseDiagnostic();
+        });
+    </script>
+</body>
+</html>

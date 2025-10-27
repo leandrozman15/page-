@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnóstico Hosting Locaweb - Abratecnica</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .test-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .status {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status.info {
+            background: #d6f3ff;
+            color: #0c5460;
+            border: 1px solid #b3e5fc;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .log {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 15px 0;
+        }
+        
+        .url-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .url-list a {
+            display: block;
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            color: #3498db;
+            text-decoration: none;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .url-list a:hover {
+            background: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico Hosting Locaweb</h1>
+        
+        <div class="test-section">
+            <h3>📋 Informações do Domínio</h3>
+            <div class="status info">
+                <strong>Domínio:</strong> abratecnica.com.br<br>
+                <strong>Hosting:</strong> Locaweb<br>
+                <strong>FTP:</strong> ftp.abratecnica.com.br<br>
+                <strong>Usuário:</strong> abratecnica1
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 URLs para Testar</h3>
+            <div class="url-list">
+                <a href="http://abratecnica.com.br" target="_blank">http://abratecnica.com.br (Domínio principal HTTP)</a>
+                <a href="http://abratecnica.com.br/desenvolvimento/" target="_blank">http://abratecnica.com.br/desenvolvimento/ (Pasta desenvolvimento HTTP)</a>
+                <a href="http://abratecnica.com.br/index.html" target="_blank">http://abratecnica.com.br/index.html (Index principal HTTP)</a>
+                <a href="https://abratecnica.com.br" target="_blank">https://abratecnica.com.br (HTTPS - pode dar erro SSL)</a>
+                <a href="https://abratecnica.com.br/desenvolvimento/" target="_blank">https://abratecnica.com.br/desenvolvimento/ (HTTPS desenvolvimento)</a>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Testes Automáticos</h3>
+            <button class="btn btn-success" onclick="runDiagnostics()">🚀 Executar Diagnóstico</button>
+            <button class="btn" onclick="clearLog()">🗑️ Limpar Log</button>
+            
+            <div id="results"></div>
+            <div class="log" id="diagnostic-log">Aguardando diagnóstico...\n</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>💡 Possíveis Soluções</h3>
+            <div class="status warning">
+                <strong>Se ERROR 404:</strong><br>
+                • Verificar se os arquivos foram enviados para a pasta correta<br>
+                • Confirmar que o index.html está na raiz ou em /desenvolvimento/<br>
+                • Verificar permissões dos arquivos (644 para arquivos, 755 para pastas)
+            </div>
+            
+            <div class="status warning">
+                <strong>Se ERROR SSL/HTTPS:</strong><br>
+                • Usar HTTP temporariamente: http://abratecnica.com.br<br>
+                • Configurar SSL no painel Locaweb<br>
+                • Aguardar propagação DNS (até 48h)
+            </div>
+            
+            <div class="status info">
+                <strong>Se o site não carrega:</strong><br>
+                • Verificar se o domínio está apontando para os nameservers Locaweb<br>
+                • Confirmar que a conta de hosting está ativa<br>
+                • Testar com www: www.abratecnica.com.br
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('diagnostic-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logEl.textContent += `[${timestamp}] ${emoji} ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('diagnostic-log').textContent = 'Log limpo...\n';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testUrl(url, description) {
+            log(`Testando: ${description} - ${url}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                
+                log(`✅ ${description}: Acessível`, 'success');
+                return { url, description, status: 'success', error: null };
+                
+            } catch (error) {
+                log(`❌ ${description}: ${error.message}`, 'error');
+                return { url, description, status: 'error', error: error.message };
+            }
+        }
+
+        async function runDiagnostics() {
+            log('🚀 Iniciando diagnóstico completo...', 'info');
+            document.getElementById('results').innerHTML = '';
+            
+            const urls = [
+                { url: 'http://abratecnica.com.br', desc: 'Domínio principal HTTP' },
+                { url: 'http://abratecnica.com.br/desenvolvimento/', desc: 'Pasta desenvolvimento HTTP' },
+                { url: 'http://abratecnica.com.br/index.html', desc: 'Index principal HTTP' },
+                { url: 'http://www.abratecnica.com.br', desc: 'WWW HTTP' },
+                { url: 'https://abratecnica.com.br', desc: 'HTTPS principal' }
+            ];
+            
+            log('📡 Testando conectividade...', 'info');
+            
+            const results = [];
+            for (const urlInfo of urls) {
+                const result = await testUrl(urlInfo.url, urlInfo.desc);
+                results.push(result);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Delay entre testes
+            }
+            
+            // Mostrar resultados
+            const resultsDiv = document.getElementById('results');
+            let resultsHTML = '<h4>📊 Resultados dos Testes:</h4>';
+            
+            results.forEach(result => {
+                const statusClass = result.status === 'success' ? 'success' : 'error';
+                resultsHTML += `
+                    <div class="status ${statusClass}">
+                        <strong>${result.description}:</strong> ${result.status === 'success' ? 'OK' : 'FALHA'}<br>
+                        <small>${result.url}</small>
+                        ${result.error ? `<br><em>Erro: ${result.error}</em>` : ''}
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = resultsHTML;
+            
+            log('✅ Diagnóstico completo finalizado!', 'success');
+            
+            // Sugestões baseadas nos resultados
+            const httpWorking = results.some(r => r.url.startsWith('http:') && r.status === 'success');
+            const httpsWorking = results.some(r => r.url.startsWith('https:') && r.status === 'success');
+            
+            if (httpWorking && !httpsWorking) {
+                log('💡 SUGESTÃO: Use HTTP temporariamente até configurar SSL', 'warning');
+            } else if (!httpWorking && !httpsWorking) {
+                log('⚠️ ATENÇÃO: Nenhuma URL está acessível - verificar hosting', 'error');
+            } else {
+                log('✅ Pelo menos uma URL está funcionando', 'success');
+            }
+        }
+
+        // Auto-executar diagnóstico após 2 segundos
+        setTimeout(() => {
+            log('🔄 Executando diagnóstico automático...', 'info');
+            runDiagnostics();
+        }, 2000);
+    </script>
+</body>
+</html>

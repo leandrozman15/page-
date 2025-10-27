@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demostración de Variantes en Tienda</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .demo-header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .demo-header h1 {
+            color: #e74c3c;
+            margin: 0 0 15px 0;
+            font-size: 2.5em;
+        }
+        .demo-header p {
+            color: #666;
+            font-size: 1.1em;
+            margin: 0;
+        }
+        .products-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .variant-highlight {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 3px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .variant-highlight .shop-product-card {
+            background: white;
+            border-radius: 9px;
+            margin: 0;
+        }
+        .no-variant {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            padding: 3px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .demo-explanation {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border-left: 5px solid #e74c3c;
+        }
+        .success-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #27ae60;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🛍️ Selectores de Variantes en Acción</h1>
+            <p>Demonstração dos seletores de variantes funcionando nas tarjetas de produtos</p>
+        </div>
+
+        <div class="demo-explanation">
+            <h3>📋 Como Funciona:</h3>
+            <ol>
+                <li><strong>Produtos con Variantes:</strong> Mostram seletor dropdown com opções</li>
+                <li><strong>Variantes Detectadas:</strong> Grão, Diâmetro, Altura, Encaixe, etc.</li>
+                <li><strong>Actualização Dinâmica:</strong> Preço e estoque mudam ao selecionar</li>
+                <li><strong>Integração Carrinho:</strong> ID único por variante selecionada</li>
+            </ol>
+        </div>
+
+        <div id="products-showcase" class="products-showcase">
+            <!-- Os produtos serão inseridos aqui via JavaScript -->
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // Dados demonstrativos que garantem variantes detectáveis
+        const demoProducts = [
+            // Produto com variantes de grão
+            {
+                id: "disco-abrasivo-norton-grao40",
+                name: "Disco Abrasivo Norton 115mm - Grão 40",
+                code: "DN115-40",
+                price: 25.90,
+                currentStock: 15,
+                grao: "40",
+                diametroExt: "115",
+                type: "Disco Abrasivo",
+                published: true,
+                imageUrl: "https://via.placeholder.com/350x250/e74c3c/ffffff?text=Norton+Grao+40",
+                description: "Disco abrasivo Norton para desbaste pesado. Grão 40 ideal para remoção rápida de material."
+            },
+            {
+                id: "disco-abrasivo-norton-grao60",
+                name: "Disco Abrasivo Norton 115mm - Grão 60",
+                code: "DN115-60", 
+                price: 27.90,
+                currentStock: 20,
+                grao: "60",
+                diametroExt: "115",
+                type: "Disco Abrasivo",
+                published: true,
+                imageUrl: "https://via.placeholder.com/350x250/e74c3c/ffffff?text=Norton+Grao+60",
+                description: "Disco abrasivo Norton para desbaste médio. Grão 60 para acabamento intermediário."
+            },
+            {
+                id: "disco-abrasivo-norton-grao80",
+                name: "Disco Abrasivo Norton 115mm - Grão 80",
+                code: "DN115-80",
+                price: 29.90,
+                currentStock: 12,
+                grao: "80", 
+                diametroExt: "115",
+                type: "Disco Abrasivo",
+                published: true,
+                imageUrl: "https://via.placeholder.com/350x250/e74c3c/ffffff?text=Norton+Grao+80",
+                description: "Disco abrasivo Norton para acabamento fino. Grão 80 para polimento e acabamento."
+            },
+            
+            // Produto com variantes de tamanho
+            {
+                id: "roda-corte-makita-125x1",
+                name: "Roda de Corte Makita - 125mm x 1.0mm",
+                code: "MC125-1",
+                price: 18.50,
+                currentStock: 25,
+                diametroExt: "125",
+                alturaRoda: "1.0",
+                type: "Roda de Corte",
+                published: true,
+                imageUrl: "https://via.placeholder.com/350x250/27ae60/ffffff?text=Makita+125x1",
+                description: "Roda de corte fina para precisão em metais."
+            },
+            {
+                id: "roda-corte-makita-125x2",
+                name: "Roda de Corte Makita - 125mm x 2.5mm", 
+                code: "MC125-2",
+                price: 22.90,
+                currentStock: 18,
+                diametroExt: "125",
+                alturaRoda: "2.5",
+                type: "Roda de Corte",
+                published: true,
+                imageUrl: "https://via.placeholder.com/350x250/27ae60/ffffff?text=Makita+125x2.5",
+                description: "Roda de corte robusta para trabalhos pesados."
+            },
+            
+            // Produto simples sem variantes
+            {
+                id: "lixa-bosch-p120",
+                name: "Lixa Bosch P120 para Madeira",
+                code: "LB-P120",
+                price: 8.90,
+                currentStock: 40,
+                type: "Lixa",
+                published: true,
+                imageUrl: "https://via.placeholder.com/350x250/3498db/ffffff?text=Bosch+P120",
+                description: "Lixa de papel Bosch para acabamento em madeira."
+            }
+        ];
+
+        function initializeDemo() {
+            console.log('🚀 Inicializando demonstração de variantes...');
+            
+            // Agrupar produtos usando a função do sistema
+            const groupedProducts = groupProductsByBase(demoProducts);
+            
+            console.log('📦 Produtos agrupados:', groupedProducts.length);
+            
+            const showcase = document.getElementById('products-showcase');
+            showcase.innerHTML = '';
+            
+            groupedProducts.forEach((product, index) => {
+                console.log(`\n🔍 Processando produto ${index + 1}:`, product.name);
+                console.log('   Variantes:', product.variants?.length || 0);
+                
+                // Crear container com destaque se tem variantes
+                const hasVariants = product.variants && product.variants.length > 1;
+                const container = document.createElement('div');
+                container.className = hasVariants ? 'variant-highlight' : 'no-variant';
+                
+                // Adicionar indicador de sucesso se tem variantes
+                if (hasVariants) {
+                    const indicator = document.createElement('div');
+                    indicator.className = 'success-indicator';
+                    indicator.innerHTML = `✅ ${product.variants.length} Variantes`;
+                    container.style.position = 'relative';
+                    container.appendChild(indicator);
+                }
+                
+                // Crear tarjeta do produto
+                const productCard = createShopProductCard(product);
+                container.appendChild(productCard);
+                showcase.appendChild(container);
+                
+                console.log(`✅ Tarjeta criada para: ${product.name}`);
+            });
+            
+            console.log('🎉 Demonstração inicializada com sucesso!');
+        }
+
+        // Executar quando a página carregar
+        window.addEventListener('load', () => {
+            setTimeout(initializeDemo, 500);
+        });
+    </script>
+</body>
+</html>

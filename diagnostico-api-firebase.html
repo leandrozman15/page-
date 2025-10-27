@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico da API Firebase - Abratecnica</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .diagnostic-panel {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result-box {
+            background: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 5px;
+        }
+        .success { border-left-color: #27ae60; background: #d5f4e6; }
+        .error { border-left-color: #e74c3c; background: #fdeaea; }
+        .info { border-left-color: #3498db; background: #ebf3fd; }
+        .warning { border-left-color: #f39c12; background: #fef9e7; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+        
+        .product-sample {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .variant-indicator {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .no-variants {
+            background: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Diagnóstico da API Firebase</h1>
+            <p>Ferramenta para diagnosticar problemas com variantes e SKUs</p>
+        </div>
+
+        <div class="grid">
+            <div class="diagnostic-panel">
+                <h3>🌐 Teste de Conexão</h3>
+                <p>Verificar se a API está respondendo corretamente.</p>
+                <button class="btn" onclick="testConnection()">Testar Conexão</button>
+                <div id="connection-result" class="result-box" style="display: none;"></div>
+            </div>
+
+            <div class="diagnostic-panel">
+                <h3>📊 Análise de Dados</h3>
+                <p>Analisar estrutura dos produtos retornados pela API.</p>
+                <button class="btn" onclick="analyzeData()">Analisar Dados</button>
+                <div id="analysis-result" class="result-box" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="diagnostic-panel">
+            <h3>🔧 Teste de Agrupamento</h3>
+            <p>Verificar se o sistema de agrupamento de variantes está funcionando.</p>
+            <button class="btn" onclick="testGrouping()">Testar Agrupamento</button>
+            <button class="btn" onclick="testGroupingDebug()">Testar Debug</button>
+            <button class="btn" onclick="showRawData()">Ver Dados Brutos</button>
+            <button class="btn" onclick="clearResults()">Limpar</button>
+            <div id="grouping-result" class="result-box" style="display: none;"></div>
+        </div>
+
+        <div class="diagnostic-panel">
+            <h3>🎯 Produtos com Variantes</h3>
+            <p>Visualizar quais produtos têm variantes detectadas.</p>
+            <div id="variants-display" style="min-height: 100px;">
+                <p style="text-align: center; color: #6c757d;">Execute o teste de agrupamento para ver os resultados aqui.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        let rawApiData = null;
+        let groupedData = null;
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '🔄 Conectando com a API Firebase...';
+            resultDiv.className = 'result-box info';
+
+            try {
+                console.log('🌐 Testando conexão com:', API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PRODUCTS);
+                
+                const startTime = Date.now();
+                const response = await fetch(API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PRODUCTS, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const endTime = Date.now();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const responseTime = endTime - startTime;
+
+                let result = '✅ CONEXÃO ESTABELECIDA COM SUCESSO!\n\n';
+                result += `🌐 URL: ${API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PRODUCTS}\n`;
+                result += `⏱️  Tempo de resposta: ${responseTime}ms\n`;
+                result += `📊 Total de produtos: ${data.length}\n`;
+                result += `📅 Timestamp: ${new Date().toLocaleString()}\n\n`;
+
+                if (data.length > 0) {
+                    result += '🔍 Estrutura do primeiro produto:\n';
+                    const firstProduct = data[0];
+                    Object.keys(firstProduct).forEach(key => {
+                        const value = firstProduct[key];
+                        const type = typeof value;
+                        result += `   ${key}: ${JSON.stringify(value)} (${type})\n`;
+                    });
+                }
+
+                resultDiv.textContent = result;
+                resultDiv.className = 'result-box success';
+                rawApiData = data;
+
+            } catch (error) {
+                let result = '❌ ERRO DE CONEXÃO!\n\n';
+                result += `🚨 Erro: ${error.message}\n`;
+                result += `🌐 URL tentada: ${API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PRODUCTS}\n\n`;
+                result += '🔧 Possíveis soluções:\n';
+                result += '   1. Verificar se a URL da API está correta no config.js\n';
+                result += '   2. Verificar se o servidor Firebase está funcionando\n';
+                result += '   3. Verificar configurações de CORS\n';
+                result += '   4. Verificar conexão com internet\n';
+
+                resultDiv.textContent = result;
+                resultDiv.className = 'result-box error';
+                console.error('Erro de conexão:', error);
+            }
+        }
+
+        async function analyzeData() {
+            if (!rawApiData) {
+                await testConnection();
+                if (!rawApiData) return;
+            }
+
+            const resultDiv = document.getElementById('analysis-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box info';
+
+            let result = '📊 ANÁLISE DOS DADOS DA API\n\n';
+            result += `Total de produtos: ${rawApiData.length}\n\n`;
+
+            // Analisar padrões de ID
+            const idPatterns = {};
+            const namePatterns = {};
+            let hasVariantSeparator = 0;
+            let hasHyphenInId = 0;
+
+            rawApiData.forEach(product => {
+                // Padrões de ID
+                if (product.id && product.id.includes('-')) {
+                    hasHyphenInId++;
+                    const parts = product.id.split('-');
+                    const pattern = parts.map(() => 'X').join('-');
+                    idPatterns[pattern] = (idPatterns[pattern] || 0) + 1;
+                }
+
+                // Padrões de nome
+                if (product.name && product.name.includes(' - ')) {
+                    hasVariantSeparator++;
+                    const parts = product.name.split(' - ');
+                    namePatterns[parts.length] = (namePatterns[parts.length] || 0) + 1;
+                }
+            });
+
+            result += '🔍 PADRÕES DETECTADOS:\n';
+            result += `   IDs com hífen: ${hasHyphenInId}/${rawApiData.length}\n`;
+            result += `   Nomes com " - ": ${hasVariantSeparator}/${rawApiData.length}\n\n`;
+
+            result += '📋 PADRÕES DE ID:\n';
+            Object.entries(idPatterns).forEach(([pattern, count]) => {
+                result += `   ${pattern}: ${count} produtos\n`;
+            });
+
+            result += '\n📋 ESTRUTURA DE NOMES:\n';
+            Object.entries(namePatterns).forEach(([parts, count]) => {
+                result += `   ${parts} partes: ${count} produtos\n`;
+            });
+
+            // Analisar campos de variantes
+            const variantFields = ['grao', 'diametroExt', 'alturaRoda', 'encaixe', 'type'];
+            result += '\n🎯 CAMPOS DE VARIANTES:\n';
+            
+            variantFields.forEach(field => {
+                const count = rawApiData.filter(p => p[field] !== undefined).length;
+                if (count > 0) {
+                    result += `   ${field}: ${count} produtos\n`;
+                }
+            });
+
+            // Mostrar amostras
+            result += '\n📝 AMOSTRAS DE PRODUTOS:\n';
+            rawApiData.slice(0, 5).forEach((product, index) => {
+                result += `\n${index + 1}. ID: ${product.id}\n`;
+                result += `   Nome: ${product.name}\n`;
+                result += `   Code: ${product.code || 'N/A'}\n`;
+                if (product.grao) result += `   Grão: ${product.grao}\n`;
+                if (product.diametroExt) result += `   Diâmetro: ${product.diametroExt}\n`;
+                if (product.alturaRoda) result += `   Altura: ${product.alturaRoda}\n`;
+            });
+
+            resultDiv.textContent = result;
+        }
+
+        async function testGrouping() {
+            if (!rawApiData) {
+                await testConnection();
+                if (!rawApiData) return;
+            }
+
+            const resultDiv = document.getElementById('grouping-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '🔄 Executando agrupamento...';
+            resultDiv.className = 'result-box info';
+
+            try {
+                // Executar agrupamento
+                groupedData = groupProductsByBase(rawApiData);
+
+                let result = '✅ AGRUPAMENTO CONCLUÍDO!\n\n';
+                result += `📊 Produtos originais: ${rawApiData.length}\n`;
+                result += `📦 Produtos agrupados: ${groupedData.length}\n`;
+                
+                const withVariants = groupedData.filter(p => p.variants && p.variants.length > 1);
+                result += `🎯 Produtos com variantes: ${withVariants.length}\n\n`;
+
+                result += '📋 DETALHES DOS PRODUTOS:\n';
+                groupedData.forEach((product, index) => {
+                    const variantCount = product.variants ? product.variants.length : 0;
+                    result += `\n${index + 1}. ${product.name}\n`;
+                    result += `   ID: ${product.id}\n`;
+                    result += `   Variantes: ${variantCount}\n`;
+                    
+                    if (variantCount > 1) {
+                        product.variants.forEach((variant, vIndex) => {
+                            result += `     ${vIndex + 1}. ${variant.value} (${variant.sku}) - R$ ${variant.price}\n`;
+                        });
+                    }
+                });
+
+                resultDiv.textContent = result;
+                resultDiv.className = 'result-box success';
+
+                // Atualizar display visual
+                updateVariantsDisplay();
+
+            } catch (error) {
+                resultDiv.textContent = `❌ ERRO NO AGRUPAMENTO:\n\n${error.message}\n\n${error.stack}`;
+                resultDiv.className = 'result-box error';
+                console.error('Erro no agrupamento:', error);
+            }
+        }
+
+        async function testGroupingDebug() {
+            if (!rawApiData) {
+                await testConnection();
+                if (!rawApiData) return;
+            }
+
+            const resultDiv = document.getElementById('grouping-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '🔄 Executando agrupamento por SKU...';
+            resultDiv.className = 'result-box info';
+
+            try {
+                console.log('🔧 Iniciando agrupamento por SKU - verifique o console para logs detalhados');
+                
+                // Mostrar análise de SKUs primeiro
+                let result = '🔧 ANÁLISE DE SKUs PARA AGRUPAMENTO:\n\n';
+                
+                // Analisar SKUs
+                const skuAnalysis = {};
+                rawApiData.forEach(product => {
+                    if (product.code) {
+                        result += `• ${product.name}\n  SKU: ${product.code}\n\n`;
+                        
+                        // Analizar prefijos
+                        for (let len = 6; len <= Math.min(product.code.length - 2, 10); len++) {
+                            const prefix = product.code.substring(0, len);
+                            if (!skuAnalysis[prefix]) {
+                                skuAnalysis[prefix] = [];
+                            }
+                            skuAnalysis[prefix].push(product);
+                        }
+                    }
+                });
+                
+                result += '🎯 PREFIJOS DE SKU ENCONTRADOS:\n';
+                Object.entries(skuAnalysis).forEach(([prefix, products]) => {
+                    if (products.length > 1) {
+                        result += `\n✅ Prefijo: ${prefix} (${products.length} produtos)\n`;
+                        products.forEach(p => {
+                            result += `   • ${p.name} (${p.code})\n`;
+                        });
+                    }
+                });
+                
+                // Executar agrupamento
+                groupedData = groupProductsByBase(rawApiData);
+                
+                result += `\n📊 RESULTADO DO AGRUPAMENTO:\n`;
+                result += `   Produtos originais: ${rawApiData.length}\n`;
+                result += `   Produtos agrupados: ${groupedData.length}\n`;
+                
+                const withVariants = groupedData.filter(p => p.variants && p.variants.length > 1);
+                result += `   Com variantes: ${withVariants.length}\n\n`;
+
+                if (withVariants.length > 0) {
+                    result += '🎉 GRUPOS COM VARIANTES CRIADOS:\n';
+                    withVariants.forEach((product, index) => {
+                        result += `\n${index + 1}. ${product.name}\n`;
+                        result += `   ID do grupo: ${product.id}\n`;
+                        result += `   Variantes: ${product.variants.length}\n`;
+                        product.variants.forEach((variant, vIndex) => {
+                            result += `     ${vIndex + 1}. ${variant.value}\n`;
+                            result += `        SKU: ${variant.code}\n`;
+                            result += `        Preço: R$ ${variant.price}\n`;
+                        });
+                    });
+                } else {
+                    result += '⚠️ NENHUM GRUPO DE VARIANTES CRIADO\n\n';
+                    result += 'Possíveis razões:\n';
+                    result += '• SKUs não têm prefixos comuns suficientes\n';
+                    result += '• Produtos são realmente únicos (sem variantes)\n';
+                    result += '• Necessário ajustar lógica de agrupamento\n\n';
+                    
+                    result += 'PRODUTOS MANTIDOS INDIVIDUAIS:\n';
+                    groupedData.forEach((product, index) => {
+                        result += `${index + 1}. ${product.name} (SKU: ${product.code || 'N/A'})\n`;
+                    });
+                }
+
+                resultDiv.textContent = result;
+                resultDiv.className = withVariants.length > 0 ? 'result-box success' : 'result-box warning';
+
+                // Atualizar display visual
+                updateVariantsDisplay();
+
+            } catch (error) {
+                resultDiv.textContent = `❌ ERRO NO AGRUPAMENTO POR SKU:\n\n${error.message}\n\n${error.stack}`;
+                resultDiv.className = 'result-box error';
+                console.error('Erro no agrupamento por SKU:', error);
+            }
+        }
+
+        function updateVariantsDisplay() {
+            if (!groupedData) return;
+
+            const container = document.getElementById('variants-display');
+            container.innerHTML = '';
+
+            groupedData.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'product-sample';
+                
+                const variantCount = product.variants ? product.variants.length : 0;
+                const indicator = document.createElement('span');
+                indicator.className = variantCount > 1 ? 'variant-indicator' : 'variant-indicator no-variants';
+                indicator.textContent = variantCount > 1 ? `${variantCount} variantes` : 'Sem variantes';
+                
+                div.innerHTML = `
+                    <strong>${product.name}</strong>
+                    <br><small>ID: ${product.id} | Preço: R$ ${product.price || 'N/A'}</small>
+                `;
+                div.appendChild(indicator);
+                
+                if (variantCount > 1) {
+                    const variantsList = document.createElement('div');
+                    variantsList.style.marginTop = '10px';
+                    variantsList.style.fontSize = '13px';
+                    
+                    product.variants.forEach(variant => {
+                        const variantDiv = document.createElement('div');
+                        variantDiv.style.marginLeft = '20px';
+                        variantDiv.innerHTML = `• ${variant.value} - R$ ${variant.price} (${variant.currentStock} em estoque)`;
+                        variantsList.appendChild(variantDiv);
+                    });
+                    
+                    div.appendChild(variantsList);
+                }
+                
+                container.appendChild(div);
+            });
+        }
+
+        function showRawData() {
+            if (!rawApiData) {
+                alert('Execute primeiro o teste de conexão!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('grouping-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = JSON.stringify(rawApiData, null, 2);
+            resultDiv.className = 'result-box info';
+        }
+
+        function clearResults() {
+            ['connection-result', 'analysis-result', 'grouping-result'].forEach(id => {
+                const div = document.getElementById(id);
+                if (div) div.style.display = 'none';
+            });
+            
+            document.getElementById('variants-display').innerHTML = 
+                '<p style="text-align: center; color: #6c757d;">Execute o teste de agrupamento para ver os resultados aqui.</p>';
+        }
+
+        // Auto-executar teste de conexão ao carregar
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>

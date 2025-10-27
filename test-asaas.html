@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Testes Asaas - Abratécnica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 25px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .test-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+            background: white;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            border-left-color: #27ae60;
+            background: #d5f4e6;
+        }
+        
+        .error {
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+        
+        .warning {
+            border-left-color: #f39c12;
+            background: #fef9e7;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-success { background: #27ae60; }
+        .status-error { background: #e74c3c; }
+        .status-warning { background: #f39c12; }
+        .status-pending { background: #95a5a6; }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .stat-item {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Testes Asaas Integration</h1>
+            <p>Sistema de Testes para Integração Segura Asaas - Abratécnica</p>
+        </div>
+        
+        <div class="content">
+            <!-- Estatísticas -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="tests-total">0</div>
+                    <div class="stat-label">Total de Testes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="tests-success">0</div>
+                    <div class="stat-label">Sucessos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="tests-errors">0</div>
+                    <div class="stat-label">Erros</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="uptime">0s</div>
+                    <div class="stat-label">Tempo de Teste</div>
+                </div>
+            </div>
+            
+            <!-- Teste 1: Conexão com Proxy -->
+            <div class="test-section">
+                <h2>
+                    <span class="status-indicator status-pending" id="status-proxy"></span>
+                    🔗 Teste de Conexão com Proxy
+                </h2>
+                <p>Verificar se o proxy PHP está funcionando corretamente.</p>
+                
+                <div class="test-controls">
+                    <button class="btn btn-primary" onclick="testProxyConnection()">
+                        🚀 Testar Proxy
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResult('proxy-result')">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="test-result" id="proxy-result" style="display: none;"></div>
+            </div>
+            
+            <!-- Teste 2: Criação de Cliente -->
+            <div class="test-section">
+                <h2>
+                    <span class="status-indicator status-pending" id="status-customer"></span>
+                    👤 Teste de Criação de Cliente
+                </h2>
+                <p>Testar criação de cliente na API Asaas via proxy seguro.</p>
+                
+                <div class="grid">
+                    <div class="form-group">
+                        <label>Nome Completo:</label>
+                        <input type="text" id="customer-name" value="João Silva Teste" placeholder="Nome do cliente">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="customer-email" value="joao.teste@email.com" placeholder="email@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone:</label>
+                        <input type="text" id="customer-phone" value="11999887766" placeholder="11999999999">
+                    </div>
+                    <div class="form-group">
+                        <label>CPF/CNPJ:</label>
+                        <input type="text" id="customer-document" value="12345678901" placeholder="Apenas números">
+                    </div>
+                </div>
+                
+                <div class="test-controls">
+                    <button class="btn btn-success" onclick="testCreateCustomer()">
+                        👤 Criar Cliente
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResult('customer-result')">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="test-result" id="customer-result" style="display: none;"></div>
+            </div>
+            
+            <!-- Teste 3: Criação de Pagamento -->
+            <div class="test-section">
+                <h2>
+                    <span class="status-indicator status-pending" id="status-payment"></span>
+                    💳 Teste de Criação de Pagamento
+                </h2>
+                <p>Testar criação de cobrança (boleto/PIX) via proxy.</p>
+                
+                <div class="grid">
+                    <div class="form-group">
+                        <label>Valor (R$):</label>
+                        <input type="number" id="payment-value" value="100.00" step="0.01" min="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Método de Pagamento:</label>
+                        <select id="payment-method">
+                            <option value="BOLETO">Boleto Bancário</option>
+                            <option value="PIX">PIX</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição:</label>
+                        <input type="text" id="payment-description" value="Teste Abratécnica" placeholder="Descrição do pagamento">
+                    </div>
+                    <div class="form-group">
+                        <label>Vencimento:</label>
+                        <input type="date" id="payment-due" value="">
+                    </div>
+                </div>
+                
+                <div class="test-controls">
+                    <button class="btn btn-success" onclick="testCreatePayment()">
+                        💳 Criar Pagamento
+                    </button>
+                    <button class="btn btn-warning" onclick="testGetPayment()" id="btn-get-payment" style="display: none;">
+                        🔍 Consultar Status
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResult('payment-result')">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="test-result" id="payment-result" style="display: none;"></div>
+            </div>
+            
+            <!-- Teste 4: Webhook -->
+            <div class="test-section">
+                <h2>
+                    <span class="status-indicator status-pending" id="status-webhook"></span>
+                    📡 Teste de Webhook
+                </h2>
+                <p>Simular recebimento de webhook do Asaas.</p>
+                
+                <div class="form-group">
+                    <label>Evento de Teste:</label>
+                    <select id="webhook-event">
+                        <option value="PAYMENT_RECEIVED">Pagamento Recebido</option>
+                        <option value="PAYMENT_CONFIRMED">Pagamento Confirmado</option>
+                        <option value="PAYMENT_OVERDUE">Pagamento em Atraso</option>
+                    </select>
+                </div>
+                
+                <div class="test-controls">
+                    <button class="btn btn-warning" onclick="testWebhook()">
+                        📡 Simular Webhook
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResult('webhook-result')">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="test-result" id="webhook-result" style="display: none;"></div>
+            </div>
+            
+            <!-- Teste 5: Rate Limiting -->
+            <div class="test-section">
+                <h2>
+                    <span class="status-indicator status-pending" id="status-rate"></span>
+                    ⚡ Teste de Rate Limiting
+                </h2>
+                <p>Verificar se o rate limiting está funcionando (máx 60 req/min).</p>
+                
+                <div class="test-controls">
+                    <button class="btn btn-danger" onclick="testRateLimit()">
+                        ⚡ Testar Rate Limit
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResult('rate-result')">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="test-result" id="rate-result" style="display: none;"></div>
+            </div>
+            
+            <!-- Teste 6: Fluxo Completo -->
+            <div class="test-section">
+                <h2>
+                    <span class="status-indicator status-pending" id="status-complete"></span>
+                    🎯 Teste Fluxo Completo
+                </h2>
+                <p>Executar fluxo completo: Cliente → Pagamento → Consulta Status.</p>
+                
+                <div class="test-controls">
+                    <button class="btn btn-primary" onclick="testCompleteFlow()">
+                        🎯 Executar Fluxo Completo
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResult('complete-result')">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="test-result" id="complete-result" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include security-config.js e asaas-integration.js -->
+    <script src="security-config.js"></script>
+    <script src="asaas-integration.js"></script>
+    
+    <script>
+        // ===== VARIÁVEIS GLOBAIS =====
+        let testStats = {
+            total: 0,
+            success: 0,
+            errors: 0,
+            startTime: Date.now()
+        };
+        
+        let lastCustomerId = null;
+        let lastPaymentId = null;
+        
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir data padrão para vencimento (3 dias)
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 3);
+            document.getElementById('payment-due').value = dueDate.toISOString().split('T')[0];
+            
+            // Iniciar contador de tempo
+            updateUptime();
+            setInterval(updateUptime, 1000);
+            
+            console.log('🧪 Sistema de testes Asaas carregado');
+        });
+        
+        // ===== FUNÇÕES DE TESTE =====
+        
+        async function testProxyConnection() {
+            const resultDiv = document.getElementById('proxy-result');
+            const statusDiv = document.getElementById('status-proxy');
+            
+            showLoading(resultDiv);
+            updateStatus(statusDiv, 'pending');
+            
+            try {
+                const response = await fetch('/api/asaas-proxy.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ action: 'test' })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showResult(resultDiv, `✅ SUCESSO: Proxy conectado!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                    updateStatus(statusDiv, 'success');
+                    updateStats('success');
+                } else {
+                    throw new Error(result.error || `HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ ERRO: ${error.message}\n\nVerifique se o arquivo api/asaas-proxy.php existe e está configurado.`, 'error');
+                updateStatus(statusDiv, 'error');
+                updateStats('error');
+            }
+        }
+        
+        async function testCreateCustomer() {
+            const resultDiv = document.getElementById('customer-result');
+            const statusDiv = document.getElementById('status-customer');
+            
+            showLoading(resultDiv);
+            updateStatus(statusDiv, 'pending');
+            
+            try {
+                const customerData = {
+                    name: document.getElementById('customer-name').value,
+                    email: document.getElementById('customer-email').value,
+                    phone: document.getElementById('customer-phone').value,
+                    document: document.getElementById('customer-document').value,
+                    cep: '01310-100',
+                    address: 'Av. Paulista',
+                    number: '1000',
+                    city: 'São Paulo',
+                    state: 'SP'
+                };
+                
+                if (!window.asaasManager) {
+                    window.asaasManager = new AsaasPaymentManager();
+                }
+                
+                const customer = await window.asaasManager.createCustomer(customerData);
+                
+                lastCustomerId = customer.id;
+                
+                showResult(resultDiv, `✅ SUCESSO: Cliente criado!\n\nID: ${customer.id}\nNome: ${customer.name}\nEmail: ${customer.email}\n\n${JSON.stringify(customer, null, 2)}`, 'success');
+                updateStatus(statusDiv, 'success');
+                updateStats('success');
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ ERRO: ${error.message}\n\nVerifique os dados do cliente e a configuração da API.`, 'error');
+                updateStatus(statusDiv, 'error');
+                updateStats('error');
+            }
+        }
+        
+        async function testCreatePayment() {
+            const resultDiv = document.getElementById('payment-result');
+            const statusDiv = document.getElementById('status-payment');
+            
+            if (!lastCustomerId) {
+                showResult(resultDiv, `⚠️ AVISO: Execute primeiro o teste de criação de cliente.`, 'warning');
+                return;
+            }
+            
+            showLoading(resultDiv);
+            updateStatus(statusDiv, 'pending');
+            
+            try {
+                const paymentData = {
+                    orderId: `TEST_${Date.now()}`,
+                    amount: parseFloat(document.getElementById('payment-value').value),
+                    method: document.getElementById('payment-method').value.toLowerCase(),
+                    description: document.getElementById('payment-description').value,
+                    dueDate: document.getElementById('payment-due').value
+                };
+                
+                const customerData = {
+                    name: document.getElementById('customer-name').value,
+                    email: document.getElementById('customer-email').value,
+                    phone: document.getElementById('customer-phone').value,
+                    document: document.getElementById('customer-document').value
+                };
+                
+                if (!window.asaasManager) {
+                    window.asaasManager = new AsaasPaymentManager();
+                }
+                
+                const payment = await window.asaasManager.createPayment(customerData, paymentData);
+                
+                lastPaymentId = payment.id;
+                
+                let resultText = `✅ SUCESSO: Pagamento criado!\n\n`;
+                resultText += `ID: ${payment.id}\n`;
+                resultText += `Valor: R$ ${payment.value}\n`;
+                resultText += `Status: ${payment.status}\n`;
+                resultText += `Vencimento: ${payment.dueDate}\n`;
+                
+                if (payment.bankSlipUrl) {
+                    resultText += `\n🧾 Boleto: ${payment.bankSlipUrl}\n`;
+                }
+                
+                if (payment.qrCodeImage) {
+                    resultText += `\n📱 QR Code PIX: ${payment.qrCodeImage}\n`;
+                }
+                
+                if (payment.pixCode) {
+                    resultText += `\n💳 Código PIX: ${payment.pixCode}\n`;
+                }
+                
+                resultText += `\n${JSON.stringify(payment, null, 2)}`;
+                
+                showResult(resultDiv, resultText, 'success');
+                updateStatus(statusDiv, 'success');
+                updateStats('success');
+                
+                // Mostrar botão de consulta
+                document.getElementById('btn-get-payment').style.display = 'inline-flex';
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ ERRO: ${error.message}\n\nVerifique os dados do pagamento e a configuração da API.`, 'error');
+                updateStatus(statusDiv, 'error');
+                updateStats('error');
+            }
+        }
+        
+        async function testGetPayment() {
+            const resultDiv = document.getElementById('payment-result');
+            
+            if (!lastPaymentId) {
+                showResult(resultDiv, `⚠️ AVISO: Execute primeiro o teste de criação de pagamento.`, 'warning');
+                return;
+            }
+            
+            try {
+                if (!window.asaasManager) {
+                    window.asaasManager = new AsaasPaymentManager();
+                }
+                
+                const payment = await window.asaasManager.getPaymentStatus(lastPaymentId);
+                
+                const resultText = `🔍 STATUS ATUALIZADO:\n\nID: ${payment.id}\nStatus: ${payment.status}\nValor: R$ ${payment.value}\n\n${JSON.stringify(payment, null, 2)}`;
+                
+                showResult(resultDiv, resultText, 'success');
+                updateStats('success');
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ ERRO ao consultar: ${error.message}`, 'error');
+                updateStats('error');
+            }
+        }
+        
+        async function testWebhook() {
+            const resultDiv = document.getElementById('webhook-result');
+            const statusDiv = document.getElementById('status-webhook');
+            
+            showLoading(resultDiv);
+            updateStatus(statusDiv, 'pending');
+            
+            try {
+                const eventType = document.getElementById('webhook-event').value;
+                
+                // Simular dados de webhook
+                const webhookData = {
+                    event: eventType,
+                    payment: {
+                        id: lastPaymentId || 'pay_test_123',
+                        value: 100.00,
+                        status: eventType === 'PAYMENT_RECEIVED' ? 'RECEIVED' : 
+                               eventType === 'PAYMENT_CONFIRMED' ? 'CONFIRMED' : 'OVERDUE',
+                        customer: {
+                            id: lastCustomerId || 'cus_test_123',
+                            name: 'João Silva Teste',
+                            email: 'joao.teste@email.com'
+                        },
+                        externalReference: 'TEST_ORDER_123'
+                    }
+                };
+                
+                // Gerar assinatura simulada (em produção seria gerada pelo Asaas)
+                const signature = 'simulated_signature_' + Date.now();
+                
+                const response = await fetch('/api/asaas-webhook.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Asaas-Signature': signature
+                    },
+                    body: JSON.stringify(webhookData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult(resultDiv, `✅ WEBHOOK PROCESSADO:\n\nEvento: ${eventType}\nResposta: ${JSON.stringify(result, null, 2)}`, 'success');
+                    updateStatus(statusDiv, 'success');
+                    updateStats('success');
+                } else {
+                    throw new Error(result.error || `HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ ERRO: ${error.message}\n\nVerifique a configuração do webhook.`, 'error');
+                updateStatus(statusDiv, 'error');
+                updateStats('error');
+            }
+        }
+        
+        async function testRateLimit() {
+            const resultDiv = document.getElementById('rate-result');
+            const statusDiv = document.getElementById('status-rate');
+            
+            showLoading(resultDiv);
+            updateStatus(statusDiv, 'pending');
+            
+            const requests = [];
+            const startTime = Date.now();
+            
+            // Fazer múltiplas requisições rapidamente
+            for (let i = 0; i < 65; i++) {
+                requests.push(
+                    fetch('/api/asaas-proxy.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ action: 'test' })
+                    })
+                );
+            }
+            
+            try {
+                const responses = await Promise.allSettled(requests);
+                const endTime = Date.now();
+                
+                let successful = 0;
+                let rateLimited = 0;
+                let errors = 0;
+                
+                for (const response of responses) {
+                    if (response.status === 'fulfilled') {
+                        if (response.value.status === 200) {
+                            successful++;
+                        } else if (response.value.status === 429) {
+                            rateLimited++;
+                        } else {
+                            errors++;
+                        }
+                    } else {
+                        errors++;
+                    }
+                }
+                
+                const duration = endTime - startTime;
+                
+                let resultText = `⚡ TESTE DE RATE LIMITING:\n\n`;
+                resultText += `Requisições enviadas: 65\n`;
+                resultText += `Tempo: ${duration}ms\n`;
+                resultText += `✅ Sucessful: ${successful}\n`;
+                resultText += `🚫 Rate Limited: ${rateLimited}\n`;
+                resultText += `❌ Errors: ${errors}\n\n`;
+                
+                if (rateLimited > 0) {
+                    resultText += `✅ Rate limiting está FUNCIONANDO!\n`;
+                    resultText += `Limite de 60 req/min está sendo respeitado.`;
+                    showResult(resultDiv, resultText, 'success');
+                    updateStatus(statusDiv, 'success');
+                    updateStats('success');
+                } else {
+                    resultText += `⚠️ Rate limiting pode não estar funcionando.\n`;
+                    resultText += `Todas as requisições passaram.`;
+                    showResult(resultDiv, resultText, 'warning');
+                    updateStatus(statusDiv, 'warning');
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ ERRO: ${error.message}`, 'error');
+                updateStatus(statusDiv, 'error');
+                updateStats('error');
+            }
+        }
+        
+        async function testCompleteFlow() {
+            const resultDiv = document.getElementById('complete-result');
+            const statusDiv = document.getElementById('status-complete');
+            
+            showLoading(resultDiv);
+            updateStatus(statusDiv, 'pending');
+            
+            let log = '🎯 INICIANDO FLUXO COMPLETO...\n\n';
+            
+            try {
+                // Passo 1: Criar cliente
+                log += '1️⃣ Criando cliente...\n';
+                showResult(resultDiv, log, 'warning');
+                
+                const customerData = {
+                    name: 'Teste Fluxo Completo',
+                    email: `teste.${Date.now()}@email.com`,
+                    phone: '11999887766',
+                    document: '12345678901',
+                    cep: '01310-100',
+                    address: 'Av. Paulista',
+                    number: '1000',
+                    city: 'São Paulo',
+                    state: 'SP'
+                };
+                
+                if (!window.asaasManager) {
+                    window.asaasManager = new AsaasPaymentManager();
+                }
+                
+                const customer = await window.asaasManager.createCustomer(customerData);
+                log += `   ✅ Cliente criado: ${customer.id}\n\n`;
+                
+                // Passo 2: Criar pagamento
+                log += '2️⃣ Criando pagamento...\n';
+                showResult(resultDiv, log, 'warning');
+                
+                const paymentData = {
+                    orderId: `COMPLETE_TEST_${Date.now()}`,
+                    amount: 150.00,
+                    method: 'pix',
+                    description: 'Teste Fluxo Completo Abratécnica'
+                };
+                
+                const payment = await window.asaasManager.createPayment(customerData, paymentData);
+                log += `   ✅ Pagamento criado: ${payment.id}\n`;
+                log += `   💰 Valor: R$ ${payment.value}\n`;
+                log += `   📅 Vencimento: ${payment.dueDate}\n\n`;
+                
+                // Passo 3: Consultar status
+                log += '3️⃣ Consultando status...\n';
+                showResult(resultDiv, log, 'warning');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Aguardar 1s
+                
+                const status = await window.asaasManager.getPaymentStatus(payment.id);
+                log += `   ✅ Status consultado: ${status.status}\n\n`;
+                
+                // Passo 4: Simular webhook
+                log += '4️⃣ Simulando webhook...\n';
+                showResult(resultDiv, log, 'warning');
+                
+                // Em um cenário real, aguardaria o webhook do Asaas
+                log += `   ⏳ Em produção, aguardaria webhook automático\n`;
+                log += `   📡 URL webhook: /api/asaas-webhook.php\n\n`;
+                
+                // Resultado final
+                log += '🎉 FLUXO COMPLETO EXECUTADO COM SUCESSO!\n\n';
+                log += `📊 Resumo:\n`;
+                log += `👤 Cliente: ${customer.name} (${customer.id})\n`;
+                log += `💳 Pagamento: ${payment.id}\n`;
+                log += `💰 Valor: R$ ${payment.value}\n`;
+                log += `📊 Status: ${status.status}\n`;
+                
+                if (payment.qrCodeImage) {
+                    log += `📱 QR Code: Disponível\n`;
+                }
+                
+                if (payment.pixCode) {
+                    log += `🔢 Código PIX: Disponível\n`;
+                }
+                
+                showResult(resultDiv, log, 'success');
+                updateStatus(statusDiv, 'success');
+                updateStats('success');
+                
+            } catch (error) {
+                log += `\n❌ ERRO: ${error.message}\n`;
+                log += `📍 O fluxo foi interrompido neste ponto.\n`;
+                
+                showResult(resultDiv, log, 'error');
+                updateStatus(statusDiv, 'error');
+                updateStats('error');
+            }
+        }
+        
+        // ===== FUNÇÕES UTILITÁRIAS =====
+        
+        function showLoading(element) {
+            element.style.display = 'block';
+            element.innerHTML = '<div class="loading"></div> Executando teste...';
+            element.className = 'test-result';
+        }
+        
+        function showResult(element, text, type = 'info') {
+            element.style.display = 'block';
+            element.innerHTML = text;
+            element.className = `test-result ${type}`;
+        }
+        
+        function clearResult(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+        
+        function updateStatus(element, status) {
+            element.className = `status-indicator status-${status}`;
+        }
+        
+        function updateStats(result) {
+            testStats.total++;
+            if (result === 'success') {
+                testStats.success++;
+            } else if (result === 'error') {
+                testStats.errors++;
+            }
+            
+            document.getElementById('tests-total').textContent = testStats.total;
+            document.getElementById('tests-success').textContent = testStats.success;
+            document.getElementById('tests-errors').textContent = testStats.errors;
+        }
+        
+        function updateUptime() {
+            const elapsed = Math.floor((Date.now() - testStats.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            document.getElementById('uptime').textContent = 
+                minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+        }
+    </script>
+</body>
+</html>

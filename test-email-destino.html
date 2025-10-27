@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: A que email llegan los pedidos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .result {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #ffeaea;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test: ¿A qué email llegan los pedidos?</h1>
+    
+    <div class="test-box">
+        <h3>📧 Verificación del endpoint /api/contact</h3>
+        <p>Vamos a enviar un mensaje de prueba para ver:</p>
+        <ul>
+            <li>¿A qué email llegan los mensajes?</li>
+            <li>¿Qué información devuelve el servidor?</li>
+            <li>¿Hay algún email de confirmación?</li>
+        </ul>
+        
+        <button onclick="testContactEndpoint()">🧪 Probar endpoint de contact</button>
+        <div id="contactResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>🛒 Simular pedido de prueba</h3>
+        <p>Enviaremos un pedido falso para ver exactamente qué pasa:</p>
+        <button onclick="testOrderFallback()">🛍️ Enviar pedido de prueba</button>
+        <div id="orderResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>📋 Información importante</h3>
+        <div id="info">
+            <p><strong>URL del ERP:</strong> <span id="erpUrl">Cargando...</span></p>
+            <p><strong>Endpoint de contact:</strong> <span id="contactEndpoint">Cargando...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Cargar configuración
+        const API_CONFIG = {
+            BASE_URL: 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app',
+            ENDPOINTS: {
+                CONTACT: '/api/contact'
+            }
+        };
+
+        // Mostrar información
+        document.getElementById('erpUrl').textContent = API_CONFIG.BASE_URL;
+        document.getElementById('contactEndpoint').textContent = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.CONTACT;
+
+        async function apiRequest(endpoint, options = {}) {
+            const url = API_CONFIG.BASE_URL + endpoint;
+            
+            const defaultOptions = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+            
+            const requestOptions = { ...defaultOptions, ...options };
+            
+            console.log('📡 API Request:', url, requestOptions);
+            
+            try {
+                const response = await fetch(url, requestOptions);
+                const data = await response.json();
+                
+                console.log('📥 API Response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                });
+                
+                return {
+                    success: response.ok,
+                    status: response.status,
+                    data: data,
+                    response: response
+                };
+            } catch (error) {
+                console.error('❌ API Error:', error);
+                return {
+                    success: false,
+                    error: error.message,
+                    data: null
+                };
+            }
+        }
+
+        async function testContactEndpoint() {
+            const resultDiv = document.getElementById('contactResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Enviando mensaje de prueba...</div>';
+            
+            try {
+                const testMessage = {
+                    name: "TEST - Verificación Email Destino",
+                    email: "test@example.com",
+                    message: `🧪 MENSAJE DE PRUEBA - ${new Date().toLocaleString('pt-BR')}
+                    
+Este es un mensaje de prueba para verificar:
+1. ¿A qué email llega este mensaje?
+2. ¿Qué información devuelve el servidor?
+3. ¿Funciona correctamente el endpoint?
+
+Por favor ignora este mensaje de prueba.`
+                };
+
+                const result = await apiRequest(API_CONFIG.ENDPOINTS.CONTACT, {
+                    method: 'POST',
+                    body: JSON.stringify(testMessage)
+                });
+
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result">
+                            <h4>✅ Mensaje enviado con éxito</h4>
+                            <p><strong>Status:</strong> ${result.status}</p>
+                            <p><strong>Respuesta del servidor:</strong></p>
+                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                            <p><strong>📧 Importante:</strong> Revisa el email que configuraste en tu Firebase para ver si llegó el mensaje.</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Error al enviar</h4>
+                            <p><strong>Status:</strong> ${result.status || 'Sin respuesta'}</p>
+                            <p><strong>Error:</strong> ${result.error || 'Error desconocido'}</p>
+                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error de conexión</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testOrderFallback() {
+            const resultDiv = document.getElementById('orderResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Enviando pedido de prueba...</div>';
+            
+            try {
+                // Simular un pedido completo
+                const orderMessage = `🛒 PEDIDO DE PRUEBA - LOJA ONLINE
+
+📋 DADOS DO CLIENTE:
+Nome: João Test
+Email: joao.test@example.com
+Telefone: (11) 99999-9999
+Empresa: Empresa Test Ltda
+
+🛍️ PRODUTOS SOLICITADOS:
+• Produto Test 1 - Qtd: 2 - Valor: R$ 50,00 (Total: R$ 100,00)
+• Produto Test 2 - Qtd: 1 - Valor: R$ 30,00 (Total: R$ 30,00)
+
+💰 VALOR TOTAL: R$ 130,00
+
+📝 OBSERVAÇÕES:
+Este é um pedido de teste para verificar o funcionamento do sistema.
+
+🔢 ID DO PEDIDO: cliente_${Date.now()}
+⏰ DATA/HORA: ${new Date().toLocaleString('pt-BR')}
+
+---
+🧪 TESTE: Este pedido foi enviado através da loja online (método de fallback).`;
+
+                const testOrder = {
+                    name: "João Test",
+                    email: "joao.test@example.com",
+                    message: orderMessage
+                };
+
+                const result = await apiRequest(API_CONFIG.ENDPOINTS.CONTACT, {
+                    method: 'POST',
+                    body: JSON.stringify(testOrder)
+                });
+
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result">
+                            <h4>✅ Pedido de prueba enviado</h4>
+                            <p><strong>Status:</strong> ${result.status}</p>
+                            <p><strong>Respuesta del servidor:</strong></p>
+                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                <strong>📧 ¡IMPORTANTE!</strong><br>
+                                El pedido se envió correctamente. Revisa tu email (el que configuraste en Firebase) para ver:
+                                <ul>
+                                    <li>El pedido completo con todos los detalles</li>
+                                    <li>Datos del cliente y productos</li>
+                                    <li>Valor total del pedido</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Error al enviar pedido</h4>
+                            <p><strong>Status:</strong> ${result.status || 'Sin respuesta'}</p>
+                            <p><strong>Error:</strong> ${result.error || 'Error desconocido'}</p>
+                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error de conexión</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

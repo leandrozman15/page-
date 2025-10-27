@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Imediato - Limpeza de Cache ERP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .card {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .status-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn:hover { 
+            background: #45a049; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-danger { background: #f44336; }
+        .btn-danger:hover { background: #da190b; }
+        .btn-primary { background: #2196F3; }
+        .btn-primary:hover { background: #1976D2; }
+        .log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 2px solid #34495e;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .emoji { font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix Imediato - Problema de Conexão ERP</h1>
+    
+    <div class="card">
+        <h3>🚨 Diagnóstico do Problema</h3>
+        <div class="status status-warning">
+            <span class="emoji">⚠️</span> 
+            <strong>Problema identificado:</strong> "Failed to fetch" na conexão com ERP
+        </div>
+        
+        <div class="status status-info">
+            <span class="emoji">🔍</span>
+            <strong>Causa provável:</strong> Cache do navegador ou problema temporário da API
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>🛠️ Soluções Automáticas</h3>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        <div id="progress-text">Aguardando início do processo...</div>
+        
+        <button class="btn" onclick="executeFix()">🚀 Executar Fix Automático</button>
+        <button class="btn btn-primary" onclick="testConnection()">🔄 Testar Conexão</button>
+        <button class="btn btn-danger" onclick="clearAllCache()">🧹 Limpar Cache Completo</button>
+    </div>
+
+    <div class="card">
+        <h3>📊 Log de Atividades</h3>
+        <div class="log" id="log">Sistema inicializado. Aguardando comandos...\n</div>
+    </div>
+
+    <div class="card" id="results" style="display: none;">
+        <h3>✅ Resultados</h3>
+        <div id="results-content"></div>
+    </div>
+
+    <script>
+        const API_CONFIG = {
+            BASE_URL: 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app',
+            PRODUCTS_ENDPOINT: '/api/products',
+            TIMEOUT: 10000
+        };
+
+        let fixSteps = [
+            { name: 'Limpeza de Cache do Service Worker', action: clearServiceWorker },
+            { name: 'Limpeza de Cache de Fetch', action: clearFetchCache },
+            { name: 'Reset de Local Storage', action: clearLocalStorage },
+            { name: 'Reset de Session Storage', action: clearSessionStorage },
+            { name: 'Teste de Conectividade', action: testConnectivity },
+            { name: 'Validação da API ERP', action: validateERP }
+        ];
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logEl.textContent += `[${timestamp}] ${emoji} ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateProgress(percentage, text) {
+            document.getElementById('progress').style.width = percentage + '%';
+            document.getElementById('progress-text').textContent = text;
+        }
+
+        async function clearServiceWorker() {
+            log('Verificando Service Workers...');
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                    log('Service Worker removido: ' + registration.scope);
+                }
+            }
+            log('Service Workers limpos com sucesso', 'success');
+        }
+
+        async function clearFetchCache() {
+            log('Limpando cache de requisições...');
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                for (const cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    log('Cache removido: ' + cacheName);
+                }
+            }
+            log('Cache de requisições limpo', 'success');
+        }
+
+        function clearLocalStorage() {
+            log('Limpando Local Storage...');
+            const localStorageKeys = Object.keys(localStorage);
+            localStorage.clear();
+            log(`Local Storage limpo (${localStorageKeys.length} chaves removidas)`, 'success');
+        }
+
+        function clearSessionStorage() {
+            log('Limpando Session Storage...');
+            const sessionStorageKeys = Object.keys(sessionStorage);
+            sessionStorage.clear();
+            log(`Session Storage limpo (${sessionStorageKeys.length} chaves removidas)`, 'success');
+        }
+
+        async function testConnectivity() {
+            log('Testando conectividade geral...');
+            try {
+                await fetch('https://www.google.com/favicon.ico', { 
+                    mode: 'no-cors', 
+                    cache: 'no-store' 
+                });
+                log('Conectividade com internet: OK', 'success');
+                return true;
+            } catch (error) {
+                log('Problema de conectividade: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function validateERP() {
+            log('Validando API ERP...');
+            const url = API_CONFIG.BASE_URL + API_CONFIG.PRODUCTS_ENDPOINT;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    cache: 'no-store'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const productCount = data.products ? data.products.length : 0;
+                    log(`API ERP: OK - ${productCount} produtos disponíveis`, 'success');
+                    return { success: true, productCount };
+                } else {
+                    log(`API ERP: Erro ${response.status} - ${response.statusText}`, 'error');
+                    return { success: false, error: response.statusText };
+                }
+            } catch (error) {
+                log(`API ERP: Falha - ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function executeFix() {
+            log('🚀 Iniciando processo de correção automática...', 'info');
+            updateProgress(0, 'Iniciando...');
+            
+            let successCount = 0;
+            let results = [];
+
+            for (let i = 0; i < fixSteps.length; i++) {
+                const step = fixSteps[i];
+                const percentage = ((i + 1) / fixSteps.length) * 100;
+                
+                updateProgress(percentage - 10, `Executando: ${step.name}`);
+                log(`[${i + 1}/${fixSteps.length}] ${step.name}...`);
+                
+                try {
+                    const result = await step.action();
+                    if (result === true || (result && result.success)) {
+                        successCount++;
+                        results.push({ step: step.name, success: true, result });
+                    } else {
+                        results.push({ step: step.name, success: false, result });
+                    }
+                } catch (error) {
+                    log(`Erro em ${step.name}: ${error.message}`, 'error');
+                    results.push({ step: step.name, success: false, error: error.message });
+                }
+                
+                updateProgress(percentage, `Concluído: ${step.name}`);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Pausa visual
+            }
+
+            updateProgress(100, 'Processo completo!');
+            
+            // Mostrar resultados
+            log('='.repeat(50), 'info');
+            log(`✅ Processo concluído: ${successCount}/${fixSteps.length} etapas bem-sucedidas`, 'success');
+            
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('results-content');
+            
+            let html = `<div class="status ${successCount === fixSteps.length ? 'status-success' : 'status-warning'}">`;
+            html += `<strong>Resultado:</strong> ${successCount}/${fixSteps.length} etapas concluídas com sucesso<br>`;
+            
+            const lastResult = results[results.length - 1];
+            if (lastResult && lastResult.result && lastResult.result.productCount) {
+                html += `<strong>Status ERP:</strong> ✅ Funcionando (${lastResult.result.productCount} produtos)<br>`;
+                html += `<strong>Recomendação:</strong> Teste a loja agora!`;
+            } else {
+                html += `<strong>Status ERP:</strong> ❌ Ainda com problemas<br>`;
+                html += `<strong>Recomendação:</strong> Verifique a URL da API ou contate o suporte`;
+            }
+            html += `</div>`;
+            
+            html += `<button class="btn btn-primary" onclick="window.open('tienda.html', '_blank')">🛒 Abrir Loja</button>`;
+            html += `<button class="btn" onclick="location.reload()">🔄 Executar Novamente</button>`;
+            
+            resultsContent.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        async function testConnection() {
+            log('🔍 Executando teste rápido de conexão...');
+            const result = await validateERP();
+            
+            if (result.success) {
+                log(`✅ Conexão OK! ${result.productCount} produtos encontrados`, 'success');
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('results-content').innerHTML = `
+                    <div class="status status-success">
+                        ✅ <strong>API ERP funcionando perfeitamente!</strong><br>
+                        📦 Produtos disponíveis: ${result.productCount}<br>
+                        🚀 Você pode usar a loja normalmente agora.
+                    </div>
+                    <button class="btn btn-primary" onclick="window.open('tienda.html', '_blank')">🛒 Abrir Loja</button>
+                `;
+            } else {
+                log(`❌ Falha na conexão: ${result.error}`, 'error');
+            }
+        }
+
+        async function clearAllCache() {
+            log('🧹 Executando limpeza completa de cache...');
+            
+            await clearServiceWorker();
+            await clearFetchCache();
+            clearLocalStorage();
+            clearSessionStorage();
+            
+            log('✅ Limpeza completa concluída!', 'success');
+            log('🔄 Recarregue a página ou execute o fix automático', 'info');
+        }
+
+        // Teste inicial automático após 2 segundos
+        setTimeout(() => {
+            log('Executando teste inicial automaticamente...');
+            testConnection();
+        }, 2000);
+    </script>
+</body>
+</html>

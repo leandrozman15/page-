@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Dashboard ERP - Monitoramento Abratecnica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-color, #667eea);
+        }
+
+        .stat-card.success::before { background: #28a745; }
+        .stat-card.warning::before { background: #ffc107; }
+        .stat-card.danger::before { background: #dc3545; }
+        .stat-card.info::before { background: #17a2b8; }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-color, #667eea);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card.success .stat-value { color: #28a745; }
+        .stat-card.warning .stat-value { color: #ffc107; }
+        .stat-card.danger .stat-value { color: #dc3545; }
+        .stat-card.info .stat-value { color: #17a2b8; }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            opacity: 0.1;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .dashboard-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .status-online { background: #28a745; }
+        .status-offline { background: #dc3545; }
+        .status-unknown { background: #6c757d; }
+
+        .log-container {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem;
+            border-radius: 4px;
+        }
+
+        .log-info { background: rgba(52, 144, 220, 0.2); }
+        .log-success { background: rgba(40, 167, 69, 0.2); }
+        .log-warning { background: rgba(255, 193, 7, 0.2); }
+        .log-error { background: rgba(220, 53, 69, 0.2); }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s ease;
+        }
+
+        .error-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .error-item {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .error-time {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .auto-refresh {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auto-refresh input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .auto-refresh {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Dashboard ERP Abratecnica</h1>
+        <p>Monitoramento em Tempo Real da Integração com Firebase</p>
+    </div>
+
+    <div class="auto-refresh">
+        <input type="checkbox" id="autoRefresh" checked>
+        <label for="autoRefresh">Auto Refresh (30s)</label>
+        <span class="status-indicator status-unknown" id="refreshStatus"></span>
+    </div>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+                <i class="fas fa-sync-alt"></i> Atualizar Dados
+            </button>
+            <button class="btn btn-success" onclick="testConnection()">
+                <i class="fas fa-plug"></i> Testar Conexão
+            </button>
+            <button class="btn btn-warning" onclick="clearCache()">
+                <i class="fas fa-trash"></i> Limpar Cache
+            </button>
+            <button class="btn btn-danger" onclick="resetCircuitBreaker()">
+                <i class="fas fa-power-off"></i> Reset Circuit Breaker
+            </button>
+            <button class="btn btn-secondary" onclick="exportLogs()">
+                <i class="fas fa-download"></i> Exportar Logs
+            </button>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card success" id="successCard">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-label">Taxa de Sucesso</div>
+            </div>
+            
+            <div class="stat-card info" id="requestsCard">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value" id="totalRequests">0</div>
+                <div class="stat-label">Total de Requests</div>
+            </div>
+            
+            <div class="stat-card warning" id="responseTimeCard">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value" id="avgResponseTime">0ms</div>
+                <div class="stat-label">Tempo Médio</div>
+            </div>
+            
+            <div class="stat-card info" id="cacheCard">
+                <div class="stat-icon">💾</div>
+                <div class="stat-value" id="cacheSize">0</div>
+                <div class="stat-label">Itens em Cache</div>
+            </div>
+        </div>
+
+        <!-- ERP Status -->
+        <div class="dashboard-section">
+            <h2 class="section-title">
+                🔗 Status da Conexão ERP
+                <span class="status-indicator status-unknown" id="erpStatusIndicator"></span>
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <strong>Status do ERP:</strong>
+                    <span id="erpStatus">Verificando...</span>
+                </div>
+                <div>
+                    <strong>Conexão de Internet:</strong>
+                    <span id="onlineStatus">Verificando...</span>
+                </div>
+                <div>
+                    <strong>Circuit Breaker:</strong>
+                    <span id="circuitBreakerStatus">Verificando...</span>
+                </div>
+                <div>
+                    <strong>Última Atualização:</strong>
+                    <span id="lastUpdate">Nunca</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Status -->
+        <div class="dashboard-section">
+            <h2 class="section-title">📦 Status dos Produtos</h2>
+            <div id="productsStatus">
+                <p>Carregando informações dos produtos...</p>
+            </div>
+        </div>
+
+        <!-- Error Statistics -->
+        <div class="dashboard-section">
+            <h2 class="section-title">❌ Estatísticas de Erros</h2>
+            <div id="errorStats">
+                <p>Carregando estatísticas de erros...</p>
+            </div>
+            <div class="error-list" id="errorList"></div>
+        </div>
+
+        <!-- Real-time Logs -->
+        <div class="dashboard-section">
+            <h2 class="section-title">📝 Logs em Tempo Real</h2>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">
+                    [INFO] Dashboard inicializado - aguardando dados...
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="dashboard-section">
+            <h2 class="section-title">📈 Performance ao Longo do Tempo</h2>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="erp-error-handler.js"></script>
+    <script src="erp-api-manager.js"></script>
+    <script src="config.js"></script>
+
+    <script>
+        class ERPDashboard {
+            constructor() {
+                this.chart = null;
+                this.autoRefreshInterval = null;
+                this.performanceData = [];
+                this.maxDataPoints = 20;
+                
+                this.initializeChart();
+                this.startAutoRefresh();
+                this.refreshDashboard();
+                
+                // Listen to ERP events if available
+                this.setupEventListeners();
+            }
+
+            initializeChart() {
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                this.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Tempo de Resposta (ms)',
+                            data: [],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Taxa de Sucesso (%)',
+                            data: [],
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tempo (ms)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                min: 0,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Taxa de Sucesso (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Performance ERP - Últimos 20 Pontos'
+                            }
+                        }
+                    }
+                });
+            }
+
+            async refreshDashboard() {
+                try {
+                    this.log('Atualizando dashboard...', 'info');
+                    
+                    // Update connection status
+                    await this.updateConnectionStatus();
+                    
+                    // Update metrics
+                    await this.updateMetrics();
+                    
+                    // Update products status
+                    await this.updateProductsStatus();
+                    
+                    // Update error statistics
+                    await this.updateErrorStats();
+                    
+                    // Update last refresh time
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('pt-BR');
+                    
+                    this.log('Dashboard atualizado com sucesso', 'success');
+                    
+                } catch (error) {
+                    this.log(`Erro ao atualizar dashboard: ${error.message}`, 'error');
+                }
+            }
+
+            async updateConnectionStatus() {
+                // ERP Status
+                const erpStatus = window.erpAPI ? window.erpAPI.erpStatus : 'unknown';
+                const erpStatusEl = document.getElementById('erpStatus');
+                const erpIndicator = document.getElementById('erpStatusIndicator');
+                
+                erpStatusEl.textContent = erpStatus;
+                erpIndicator.className = `status-indicator status-${erpStatus}`;
+                
+                // Online Status
+                const onlineStatus = navigator.onLine;
+                document.getElementById('onlineStatus').textContent = onlineStatus ? 'Online' : 'Offline';
+                
+                // Circuit Breaker Status
+                const cbStatus = window.circuitBreaker ? window.circuitBreaker.getStatus() : null;
+                if (cbStatus) {
+                    document.getElementById('circuitBreakerStatus').textContent = 
+                        `${cbStatus.state} (${cbStatus.failureCount} falhas)`;
+                }
+            }
+
+            async updateMetrics() {
+                const metrics = window.erpAPI ? window.erpAPI.getMetrics() : {
+                    requests: 0,
+                    successes: 0,
+                    failures: 0,
+                    avgResponseTime: 0,
+                    successRate: '0%'
+                };
+
+                // Update stats cards
+                document.getElementById('successRate').textContent = metrics.successRate || '0%';
+                document.getElementById('totalRequests').textContent = metrics.requests || 0;
+                document.getElementById('avgResponseTime').textContent = 
+                    Math.round(metrics.avgResponseTime || 0) + 'ms';
+                
+                const cacheSize = window.erpAPI ? window.erpAPI.cache.size : 0;
+                document.getElementById('cacheSize').textContent = cacheSize;
+
+                // Update chart
+                this.updateChart(metrics);
+            }
+
+            updateChart(metrics) {
+                const now = new Date().toLocaleTimeString();
+                const successRate = parseFloat(metrics.successRate?.replace('%', '') || '0');
+                
+                // Add new data point
+                this.chart.data.labels.push(now);
+                this.chart.data.datasets[0].data.push(Math.round(metrics.avgResponseTime || 0));
+                this.chart.data.datasets[1].data.push(successRate);
+                
+                // Keep only last 20 points
+                if (this.chart.data.labels.length > this.maxDataPoints) {
+                    this.chart.data.labels.shift();
+                    this.chart.data.datasets[0].data.shift();
+                    this.chart.data.datasets[1].data.shift();
+                }
+                
+                this.chart.update('none');
+            }
+
+            async updateProductsStatus() {
+                const statusEl = document.getElementById('productsStatus');
+                
+                try {
+                    if (window.erpAPI) {
+                        const response = await window.erpAPI.getProducts();
+                        
+                        statusEl.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                                <div><strong>Total:</strong> ${response.total}</div>
+                                <div><strong>Publicados:</strong> ${response.published}</div>
+                                <div><strong>Status:</strong> <span style="color: #28a745;">✅ OK</span></div>
+                            </div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: #e7f3ff; border-left: 4px solid #0066cc; border-radius: 4px;">
+                                <small><strong>ℹ️ Info:</strong> Produtos incluem variantes expandidas (SKU único por variante)</small>
+                            </div>
+                        `;
+                    } else {
+                        statusEl.innerHTML = '<p>ERP API não inicializado</p>';
+                    }
+                } catch (error) {
+                    statusEl.innerHTML = `<p style="color: #dc3545;">❌ Erro: ${error.message}</p>`;
+                }
+            }
+
+            async updateErrorStats() {
+                const statsEl = document.getElementById('errorStats');
+                const listEl = document.getElementById('errorList');
+                
+                if (window.erpErrorHandler) {
+                    const stats = window.erpErrorHandler.getErrorStats();
+                    
+                    if (stats.total === 0) {
+                        statsEl.innerHTML = '<p style="color: #28a745;">✅ Nenhum erro registrado</p>';
+                        listEl.innerHTML = '';
+                    } else {
+                        statsEl.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                                <div><strong>Total de Erros:</strong> ${stats.total}</div>
+                                <div><strong>Últimas 24h:</strong> ${stats.recentErrors}</div>
+                                <div><strong>Mais Comum:</strong> ${stats.mostCommon}</div>
+                            </div>
+                        `;
+                        
+                        // Show recent errors
+                        const recentErrors = window.erpErrorHandler.errorHistory.slice(-5);
+                        listEl.innerHTML = recentErrors.map(error => `
+                            <div class="error-item">
+                                <div class="error-time">${new Date(error.timestamp).toLocaleString('pt-BR')}</div>
+                                <strong>${error.type}:</strong> ${error.message}
+                                <br><small>Endpoint: ${error.context.endpoint}</small>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    statsEl.innerHTML = '<p>Error Handler não inicializado</p>';
+                }
+            }
+
+            startAutoRefresh() {
+                const checkbox = document.getElementById('autoRefresh');
+                const status = document.getElementById('refreshStatus');
+                
+                const updateRefresh = () => {
+                    if (checkbox.checked) {
+                        this.autoRefreshInterval = setInterval(() => {
+                            this.refreshDashboard();
+                        }, 30000);
+                        status.className = 'status-indicator status-online';
+                    } else {
+                        if (this.autoRefreshInterval) {
+                            clearInterval(this.autoRefreshInterval);
+                            this.autoRefreshInterval = null;
+                        }
+                        status.className = 'status-indicator status-offline';
+                    }
+                };
+                
+                checkbox.addEventListener('change', updateRefresh);
+                updateRefresh();
+            }
+
+            setupEventListeners() {
+                // Listen to console logs for real-time updates
+                const originalLog = console.log;
+                const originalError = console.error;
+                const originalWarn = console.warn;
+                
+                console.log = (...args) => {
+                    this.log(args.join(' '), 'info');
+                    originalLog.apply(console, args);
+                };
+                
+                console.error = (...args) => {
+                    this.log(args.join(' '), 'error');
+                    originalError.apply(console, args);
+                };
+                
+                console.warn = (...args) => {
+                    this.log(args.join(' '), 'warning');
+                    originalWarn.apply(console, args);
+                };
+            }
+
+            log(message, type = 'info') {
+                const container = document.getElementById('logContainer');
+                const entry = document.createElement('div');
+                entry.className = `log-entry log-${type}`;
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                
+                container.appendChild(entry);
+                container.scrollTop = container.scrollHeight;
+                
+                // Keep only last 50 entries
+                while (container.children.length > 50) {
+                    container.removeChild(container.firstChild);
+                }
+            }
+        }
+
+        // Global functions for buttons
+        async function refreshDashboard() {
+            if (window.dashboard) {
+                await window.dashboard.refreshDashboard();
+            }
+        }
+
+        async function testConnection() {
+            window.dashboard.log('Testando conexão com ERP...', 'info');
+            try {
+                if (window.erpAPI) {
+                    const result = await window.erpAPI.checkERPHealth();
+                    window.dashboard.log('Teste de conexão concluído', 'success');
+                } else {
+                    throw new Error('ERP API não disponível');
+                }
+            } catch (error) {
+                window.dashboard.log(`Teste de conexão falhou: ${error.message}`, 'error');
+            }
+        }
+
+        function clearCache() {
+            if (window.erpAPI) {
+                window.erpAPI.clearCache();
+                window.dashboard.log('Cache limpo com sucesso', 'success');
+                refreshDashboard();
+            }
+        }
+
+        function resetCircuitBreaker() {
+            if (window.circuitBreaker) {
+                window.circuitBreaker.reset();
+                window.dashboard.log('Circuit Breaker resetado', 'success');
+                refreshDashboard();
+            }
+        }
+
+        function exportLogs() {
+            if (window.erpErrorHandler) {
+                window.erpErrorHandler.exportErrorLogs();
+                window.dashboard.log('Logs exportados', 'info');
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for ERP API to load
+            setTimeout(() => {
+                window.dashboard = new ERPDashboard();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico ERP y CORS - Abratecnica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .test-item.pending {
+            border-left-color: #ffc107;
+        }
+
+        .test-item.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .test-item.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .test-item.warning {
+            border-left-color: #ff9800;
+            background: #fff3cd;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .details.show {
+            display: block;
+        }
+
+        .details pre {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 11px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .config-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .config-display table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .config-display td {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .config-display td:first-child {
+            font-weight: 600;
+            color: #495057;
+            width: 30%;
+        }
+
+        .config-display td:last-child {
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .summary h3 {
+            margin-bottom: 15px;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-details {
+            font-size: 11px;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Diagnóstico Completo ERP y CORS</h1>
+            <p>Análisis exhaustivo de la conexión, configuración y comunicación</p>
+            <p style="margin-top: 10px;"><strong>Timestamp:</strong> <span id="timestamp"></span></p>
+        </div>
+
+        <!-- Sección 1: Configuración Actual -->
+        <div class="section">
+            <h2><span class="icon">⚙️</span> Configuración del Sistema</h2>
+            <div class="config-display" id="configDisplay"></div>
+        </div>
+
+        <!-- Sección 2: Tests de Conectividad -->
+        <div class="section">
+            <h2><span class="icon">🌐</span> Tests de Conectividad</h2>
+            <div id="connectivityTests"></div>
+        </div>
+
+        <!-- Sección 3: Tests CORS -->
+        <div class="section">
+            <h2><span class="icon">🔐</span> Tests CORS y Proxies</h2>
+            <div id="corsTests"></div>
+        </div>
+
+        <!-- Sección 4: Tests API ERP -->
+        <div class="section">
+            <h2><span class="icon">🔌</span> Tests API ERP</h2>
+            <div id="erpTests"></div>
+        </div>
+
+        <!-- Sección 5: API Local PHP -->
+        <div class="section">
+            <h2><span class="icon">💻</span> API Local PHP</h2>
+            <div id="localApiTests"></div>
+        </div>
+
+        <!-- Sección 6: Métricas -->
+        <div class="section">
+            <h2><span class="icon">📊</span> Métricas de Performance</h2>
+            <div class="metric-grid" id="metrics"></div>
+        </div>
+
+        <!-- Resumen -->
+        <div class="summary" id="summary" style="display: none;">
+            <h3>📋 Resumen del Diagnóstico</h3>
+            <ul class="summary-list" id="summaryList"></ul>
+        </div>
+
+        <!-- Acciones -->
+        <div class="actions">
+            <button class="btn btn-primary" onclick="runDiagnostic()">🔄 Ejecutar Diagnóstico</button>
+            <button class="btn btn-success" onclick="testQuickConnection()">⚡ Test Rápido</button>
+            <button class="btn btn-secondary" onclick="clearCache()">🗑️ Limpiar Cache</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config-global.js"></script>
+    <script src="erp-api-manager.js"></script>
+    <script src="erp-api-flexible.js"></script>
+
+    <script>
+        // Estado global
+        const diagnosticState = {
+            startTime: null,
+            results: [],
+            metrics: {
+                totalTests: 0,
+                passed: 0,
+                failed: 0,
+                warnings: 0,
+                totalTime: 0
+            }
+        };
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+            displayConfig();
+        });
+
+        // Mostrar configuración actual
+        function displayConfig() {
+            const config = {
+                'ERP Base URL': window.erpAPI?.config?.BASE_URL || 'No definido',
+                'Endpoint Products': window.erpAPI?.config?.ENDPOINTS?.PRODUCTS || 'No definido',
+                'Endpoint Orders': window.erpAPI?.config?.ENDPOINTS?.ORDERS || 'No definido',
+                'Endpoint Contact': window.erpAPI?.config?.ENDPOINTS?.CONTACT || 'No definido',
+                'CORS Proxy Habilitado': window.erpAPI?.config?.CORS_PROXY_FALLBACK ? 'Sí' : 'No',
+                'CORS Proxy URL': window.erpAPI?.config?.CORS_PROXY_URL || 'No definido',
+                'Retry Attempts': window.erpAPI?.config?.RETRY_ATTEMPTS || 'No definido',
+                'Timeout': `${window.erpAPI?.config?.TIMEOUT || 0}ms`,
+                'Debug Mode': window.erpAPI?.config?.DEBUG ? 'Activado' : 'Desactivado',
+                'Status ERP': window.erpAPI?.erpStatus || 'unknown',
+                'Online': navigator.onLine ? 'Sí' : 'No',
+                'User Agent': navigator.userAgent.substring(0, 50) + '...'
+            };
+
+            const table = document.createElement('table');
+            for (const [key, value] of Object.entries(config)) {
+                const row = table.insertRow();
+                row.insertCell(0).textContent = key;
+                row.insertCell(1).textContent = value;
+            }
+            document.getElementById('configDisplay').appendChild(table);
+        }
+
+        // Test individual
+        async function runTest(name, testFn, container) {
+            const testId = `test-${Date.now()}-${Math.random()}`;
+            const testEl = document.createElement('div');
+            testEl.className = 'test-item pending';
+            testEl.id = testId;
+            testEl.innerHTML = `
+                <div>
+                    <strong>${name}</strong>
+                    <div class="status">
+                        <div class="spinner"></div>
+                        <span>Ejecutando...</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(testEl);
+
+            const startTime = performance.now();
+            try {
+                const result = await testFn();
+                const duration = performance.now() - startTime;
+                
+                const status = result.success ? 'success' : (result.warning ? 'warning' : 'error');
+                testEl.className = `test-item ${status}`;
+                
+                const icon = result.success ? '✅' : (result.warning ? '⚠️' : '❌');
+                const statusText = result.success ? 'Éxito' : (result.warning ? 'Advertencia' : 'Error');
+                
+                testEl.innerHTML = `
+                    <div style="flex: 1;">
+                        <strong>${name}</strong>
+                        <div class="status">
+                            <span>${icon}</span>
+                            <span>${statusText} (${duration.toFixed(0)}ms)</span>
+                        </div>
+                        ${result.message ? `<p style="font-size: 12px; margin-top: 5px; color: #666;">${result.message}</p>` : ''}
+                        ${result.details ? `<span class="toggle-details" onclick="toggleDetails('${testId}')">Ver detalles</span>` : ''}
+                        <div class="details" id="details-${testId}">
+                            <pre>${JSON.stringify(result.details, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+
+                diagnosticState.results.push({ name, status, duration, result });
+                diagnosticState.metrics.totalTests++;
+                if (result.success) diagnosticState.metrics.passed++;
+                else if (result.warning) diagnosticState.metrics.warnings++;
+                else diagnosticState.metrics.failed++;
+                diagnosticState.metrics.totalTime += duration;
+
+                return result;
+            } catch (error) {
+                const duration = performance.now() - startTime;
+                testEl.className = 'test-item error';
+                testEl.innerHTML = `
+                    <div style="flex: 1;">
+                        <strong>${name}</strong>
+                        <div class="status">
+                            <span>❌</span>
+                            <span>Error (${duration.toFixed(0)}ms)</span>
+                        </div>
+                        <p style="font-size: 12px; margin-top: 5px; color: #dc3545;">${error.message}</p>
+                        <span class="toggle-details" onclick="toggleDetails('${testId}')">Ver detalles</span>
+                        <div class="details" id="details-${testId}">
+                            <pre>${error.stack || error.toString()}</pre>
+                        </div>
+                    </div>
+                `;
+
+                diagnosticState.results.push({ name, status: 'error', duration, error: error.message });
+                diagnosticState.metrics.totalTests++;
+                diagnosticState.metrics.failed++;
+                diagnosticState.metrics.totalTime += duration;
+
+                return { success: false, message: error.message };
+            }
+        }
+
+        // Tests de conectividad
+        async function testInternetConnection() {
+            const response = await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors' });
+            return { success: true, message: 'Conexión a Internet OK' };
+        }
+
+        async function testERPReachability() {
+            const url = window.erpAPI.config.BASE_URL;
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000);
+            
+            try {
+                const response = await fetch(url, { 
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    signal: controller.signal 
+                });
+                clearTimeout(timeout);
+                return { 
+                    success: true, 
+                    message: 'Servidor ERP alcanzable',
+                    details: { url, type: response.type }
+                };
+            } catch (error) {
+                clearTimeout(timeout);
+                return { 
+                    success: false, 
+                    message: `No se puede alcanzar el servidor: ${error.message}`,
+                    details: { url, error: error.message }
+                };
+            }
+        }
+
+        async function testDNSResolution() {
+            const hostname = new URL(window.erpAPI.config.BASE_URL).hostname;
+            return { 
+                success: true, 
+                message: `DNS resuelto: ${hostname}`,
+                details: { hostname }
+            };
+        }
+
+        // Tests CORS
+        async function testDirectConnection() {
+            const url = `${window.erpAPI.config.BASE_URL}${window.erpAPI.config.ENDPOINTS.PRODUCTS}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return { 
+                    success: true, 
+                    message: 'Conexión directa funciona (sin CORS bloqueado)',
+                    details: { status: response.status, productsCount: Array.isArray(data) ? data.length : (data.products?.length || 0) }
+                };
+            } catch (error) {
+                if (error.message.includes('CORS') || error.name === 'TypeError') {
+                    return { 
+                        success: false, 
+                        warning: true,
+                        message: 'CORS bloqueando conexión directa (esperado)',
+                        details: { error: error.message }
+                    };
+                }
+                throw error;
+            }
+        }
+
+        async function testCorsProxy() {
+            const proxyUrl = window.erpAPI.config.CORS_PROXY_URL;
+            const targetUrl = `${window.erpAPI.config.BASE_URL}${window.erpAPI.config.ENDPOINTS.PRODUCTS}`;
+            const proxiedUrl = `${proxyUrl}${encodeURIComponent(targetUrl)}`;
+            
+            try {
+                const response = await fetch(proxiedUrl, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return { 
+                    success: true, 
+                    message: 'CORS Proxy funciona correctamente',
+                    details: { proxy: proxyUrl, productsCount: Array.isArray(data) ? data.length : (data.products?.length || 0) }
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: `CORS Proxy falló: ${error.message}`,
+                    details: { proxy: proxyUrl, error: error.message }
+                };
+            }
+        }
+
+        async function testFlexibleProxies() {
+            if (!window.erpAPIFlexible) {
+                return { success: false, message: 'ERP API Flexible no disponible' };
+            }
+
+            try {
+                const result = await window.erpAPIFlexible.getProducts();
+                return { 
+                    success: result.published > 0, 
+                    message: `Sistema flexible encontró ${result.published} productos`,
+                    details: { total: result.total, published: result.published, workingProxy: window.erpAPIFlexible.workingProxy }
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: `Sistema flexible falló: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        // Tests API ERP
+        async function testGetProducts() {
+            try {
+                const result = await window.erpAPI.getProducts();
+                return { 
+                    success: result.published > 0, 
+                    message: `API ERP retornó ${result.published} productos publicados`,
+                    details: { total: result.total, published: result.published }
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: `Error al obtener productos: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testERPHealth() {
+            try {
+                const result = await window.erpAPI.checkERPHealth();
+                return { 
+                    success: result.status === 'online', 
+                    message: `Estado del ERP: ${result.status}`,
+                    details: result
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: `Health check falló: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testGetProduct() {
+            try {
+                const allProducts = await window.erpAPI.getProducts();
+                if (allProducts.products.length === 0) {
+                    return { warning: true, message: 'No hay productos para testear' };
+                }
+                
+                const firstProduct = allProducts.products[0];
+                const product = await window.erpAPI.getProduct(firstProduct.id);
+                
+                return { 
+                    success: !!product, 
+                    message: `Producto individual obtenido: ${product.name}`,
+                    details: { id: product.id, name: product.name, price: product.price }
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: `Error al obtener producto individual: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        // Tests API Local PHP
+        async function testLocalAPIHealth() {
+            try {
+                const response = await fetch('/api/health.php');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return { 
+                    success: data.status === 'ok', 
+                    message: `API Local PHP funcionando (PHP ${data.php})`,
+                    details: data
+                };
+            } catch (error) {
+                return { 
+                    success: false,
+                    warning: true,
+                    message: 'API Local PHP no disponible (normal en desarrollo)',
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testLocalAPIProxy() {
+            try {
+                const response = await fetch('/api/erp-proxy.php');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return { 
+                    success: Array.isArray(data) || data.products, 
+                    message: 'Proxy PHP local funciona',
+                    details: { productsCount: Array.isArray(data) ? data.length : (data.products?.length || 0) }
+                };
+            } catch (error) {
+                return { 
+                    success: false,
+                    warning: true,
+                    message: 'Proxy PHP local no disponible (normal en desarrollo)',
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        // Ejecutar diagnóstico completo
+        async function runDiagnostic() {
+            diagnosticState.startTime = Date.now();
+            diagnosticState.results = [];
+            diagnosticState.metrics = { totalTests: 0, passed: 0, failed: 0, warnings: 0, totalTime: 0 };
+
+            // Limpiar contenedores
+            document.getElementById('connectivityTests').innerHTML = '';
+            document.getElementById('corsTests').innerHTML = '';
+            document.getElementById('erpTests').innerHTML = '';
+            document.getElementById('localApiTests').innerHTML = '';
+
+            console.log('🔍 Iniciando diagnóstico completo...');
+
+            // Tests de conectividad
+            const connectivityContainer = document.getElementById('connectivityTests');
+            await runTest('Conexión a Internet', testInternetConnection, connectivityContainer);
+            await runTest('Alcanzabilidad del Servidor ERP', testERPReachability, connectivityContainer);
+            await runTest('Resolución DNS', testDNSResolution, connectivityContainer);
+
+            // Tests CORS
+            const corsContainer = document.getElementById('corsTests');
+            await runTest('Conexión Directa (sin proxy)', testDirectConnection, corsContainer);
+            await runTest('CORS Proxy (corsproxy.io)', testCorsProxy, corsContainer);
+            await runTest('Sistema Flexible con Múltiples Proxies', testFlexibleProxies, corsContainer);
+
+            // Tests API ERP
+            const erpContainer = document.getElementById('erpTests');
+            await runTest('Health Check ERP', testERPHealth, erpContainer);
+            await runTest('Obtener Lista de Productos', testGetProducts, erpContainer);
+            await runTest('Obtener Producto Individual', testGetProduct, erpContainer);
+
+            // Tests API Local
+            const localContainer = document.getElementById('localApiTests');
+            await runTest('Health Check API Local PHP', testLocalAPIHealth, localContainer);
+            await runTest('Proxy PHP Local', testLocalAPIProxy, localContainer);
+
+            // Mostrar métricas
+            displayMetrics();
+            displaySummary();
+
+            console.log('✅ Diagnóstico completado:', diagnosticState.metrics);
+        }
+
+        // Mostrar métricas
+        function displayMetrics() {
+            const container = document.getElementById('metrics');
+            container.innerHTML = '';
+
+            const metrics = [
+                { label: 'Tests Totales', value: diagnosticState.metrics.totalTests, icon: '📊' },
+                { label: 'Exitosos', value: diagnosticState.metrics.passed, icon: '✅' },
+                { label: 'Fallidos', value: diagnosticState.metrics.failed, icon: '❌' },
+                { label: 'Advertencias', value: diagnosticState.metrics.warnings, icon: '⚠️' },
+                { label: 'Tiempo Total', value: `${diagnosticState.metrics.totalTime.toFixed(0)}ms`, icon: '⏱️' },
+                { label: 'Éxito %', value: `${((diagnosticState.metrics.passed / diagnosticState.metrics.totalTests) * 100).toFixed(0)}%`, icon: '📈' }
+            ];
+
+            metrics.forEach(metric => {
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                card.innerHTML = `
+                    <div class="icon">${metric.icon}</div>
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-label">${metric.label}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Mostrar resumen
+        function displaySummary() {
+            const summary = document.getElementById('summary');
+            const list = document.getElementById('summaryList');
+            list.innerHTML = '';
+
+            summary.style.display = 'block';
+
+            const recommendations = [];
+
+            // Análisis de resultados
+            const corsProxyWorking = diagnosticState.results.find(r => r.name.includes('CORS Proxy'))?.status === 'success';
+            const directWorking = diagnosticState.results.find(r => r.name.includes('Conexión Directa'))?.status === 'success';
+            const flexibleWorking = diagnosticState.results.find(r => r.name.includes('Sistema Flexible'))?.status === 'success';
+            const erpHealthy = diagnosticState.results.find(r => r.name.includes('Health Check ERP'))?.status === 'success';
+            const productsWorking = diagnosticState.results.find(r => r.name.includes('Lista de Productos'))?.status === 'success';
+
+            if (directWorking) {
+                recommendations.push('✅ Conexión directa funciona - No hay problemas de CORS');
+            } else if (corsProxyWorking) {
+                recommendations.push('✅ CORS Proxy funciona - Sistema operativo con fallback');
+            } else if (flexibleWorking) {
+                recommendations.push('⚠️ Solo sistema flexible funciona - Revisar configuración CORS del servidor');
+            } else {
+                recommendations.push('❌ Ningún método de conexión funciona - Problema crítico');
+            }
+
+            if (erpHealthy) {
+                recommendations.push('✅ ERP está online y respondiendo');
+            } else {
+                recommendations.push('❌ ERP no responde o tiene problemas');
+            }
+
+            if (productsWorking) {
+                recommendations.push('✅ API de productos funciona correctamente');
+            } else {
+                recommendations.push('❌ API de productos no funciona - Revisar endpoints');
+            }
+
+            const localPHP = diagnosticState.results.find(r => r.name.includes('Health Check API Local'))?.status;
+            if (localPHP === 'success') {
+                recommendations.push('✅ API Local PHP disponible - Óptimo para producción');
+            } else {
+                recommendations.push('ℹ️ API Local PHP no disponible - Normal en desarrollo local');
+            }
+
+            recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                list.appendChild(li);
+            });
+
+            // Recomendaciones finales
+            const finalRec = document.createElement('li');
+            finalRec.style.marginTop = '15px';
+            finalRec.style.fontWeight = 'bold';
+            
+            if (diagnosticState.metrics.passed >= diagnosticState.metrics.totalTests * 0.7) {
+                finalRec.textContent = '🎉 Sistema funcionando correctamente - Listo para producción';
+            } else if (diagnosticState.metrics.passed >= diagnosticState.metrics.totalTests * 0.5) {
+                finalRec.textContent = '⚠️ Sistema funcional con advertencias - Revisar configuración';
+            } else {
+                finalRec.textContent = '❌ Sistema requiere atención urgente - Problemas críticos detectados';
+            }
+            
+            list.appendChild(finalRec);
+        }
+
+        // Test rápido
+        async function testQuickConnection() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Testeando...';
+
+            try {
+                const result = await window.erpAPI.getProducts();
+                alert(`✅ Conexión OK!\n\n${result.published} productos disponibles`);
+            } catch (error) {
+                alert(`❌ Error de conexión:\n\n${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '⚡ Test Rápido';
+            }
+        }
+
+        // Limpiar cache
+        function clearCache() {
+            window.erpAPI.clearCache();
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('✅ Cache limpiado correctamente');
+        }
+
+        // Toggle detalles
+        function toggleDetails(testId) {
+            const details = document.getElementById(`details-${testId}`);
+            details.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

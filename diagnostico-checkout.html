@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 Diagnóstico Checkout - Abratecnica</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: #f8f9fa;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 28px; }
+        
+        .section { 
+            padding: 30px; 
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child { border-bottom: none; }
+        
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        .alert.error { background: #fed7d7; border: 2px solid #fc8181; color: #742a2a; }
+        .alert.info { background: #ebf8ff; border: 2px solid #bee3f8; color: #2b6cb0; }
+        .alert.success { background: #f0fff4; border: 2px solid #9ae6b4; color: #22543d; }
+        .alert.warning { background: #fffbeb; border: 2px solid #f6e05e; color: #744210; }
+        
+        .btn {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #e8690b; }
+        .btn:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        .test-form {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-form h4 { margin: 0 0 15px; color: #495057; }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .response-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            display: none;
+        }
+        
+        .status {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .status.waiting { background: #fff3cd; color: #856404; }
+        .status.loading { background: #cce5ff; color: #004085; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 Diagnóstico do Checkout</h1>
+            <p>Identificando problema no sistema de pedidos</p>
+        </div>
+        
+        <div class="section">
+            <h2>🔍 Problema Reportado</h2>
+            <div class="alert error">
+                <strong>❌ Erro no Checkout</strong><br><br>
+                <strong>Mensagem:</strong> "Erro ao Processar Pedido"<br>
+                <strong>Detalhe:</strong> "Erro de conexão. Verifique sua internet e tente novamente."<br>
+                <strong>Endpoint:</strong> POST /api/orders
+            </div>
+            
+            <div class="alert info">
+                <strong>💡 Possíveis causas:</strong><br>
+                1. Endpoint /api/orders não existe<br>
+                2. Método POST não configurado<br>
+                3. Estrutura de dados incorreta<br>
+                4. Erro interno no servidor
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Teste 1: Verificar Endpoint</h2>
+            <p>Primeiro, vamos verificar se o endpoint /api/orders existe:</p>
+            
+            <button class="btn" onclick="testEndpointExists()" id="test-endpoint-btn">
+                🔍 Verificar /api/orders
+            </button>
+            
+            <div class="status waiting" id="endpoint-status">Aguardando teste</div>
+            <div class="response-area" id="endpoint-response"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🛒 Teste 2: Simular Pedido Real</h2>
+            <p>Vamos enviar um pedido de teste igual ao que sua loja envia:</p>
+            
+            <div class="test-form">
+                <h4>📋 Dados do Pedido de Teste</h4>
+                <div class="form-group">
+                    <label>Cliente ID:</label>
+                    <input type="text" id="cliente-id" value="cliente_teste_diagnostico_1729">
+                </div>
+                <div class="form-group">
+                    <label>Vendedor:</label>
+                    <input type="text" id="vendedor" value="Loja Online Diagnóstico">
+                </div>
+                <div class="form-group">
+                    <label>Produto ID (usar um real do seu ERP):</label>
+                    <input type="text" id="produto-id" value="A6qHzCnxhlJLJVwCLx7w" placeholder="Cole ID de produto real">
+                </div>
+                <div class="form-group">
+                    <label>Quantidade:</label>
+                    <input type="number" id="quantidade" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Valor Unitário (R$):</label>
+                    <input type="number" id="valor" value="25.99" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Observações:</label>
+                    <textarea id="observacoes" rows="3">Pedido de teste do sistema de diagnóstico - João Silva (joao@teste.com) - Empresa Teste - Tel: (11) 99999-9999</textarea>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="testOrder()" id="test-order-btn">
+                🚀 Enviar Pedido de Teste
+            </button>
+            
+            <div class="status waiting" id="order-status">Aguardando teste</div>
+            <div class="response-area" id="order-response"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📞 Teste 3: Verificar Contato</h2>
+            <p>Também vamos testar o endpoint de contato para comparar:</p>
+            
+            <button class="btn" onclick="testContact()" id="test-contact-btn">
+                📧 Testar /api/contact
+            </button>
+            
+            <div class="status waiting" id="contact-status">Aguardando teste</div>
+            <div class="response-area" id="contact-response"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Resultado e Solução</h2>
+            <div id="solution-area">
+                <div class="alert info">
+                    <strong>⏳ Execute os testes acima para receber a solução específica</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ERP_URL = 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app';
+        
+        // Test 1: Check if endpoint exists
+        async function testEndpointExists() {
+            const btn = document.getElementById('test-endpoint-btn');
+            const status = document.getElementById('endpoint-status');
+            const response = document.getElementById('endpoint-response');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Verificando...';
+            status.className = 'status loading';
+            status.textContent = 'Verificando endpoint...';
+            response.style.display = 'block';
+            response.textContent = 'Testando endpoint /api/orders...';
+            
+            try {
+                // Try GET first to see if endpoint exists
+                const url = ERP_URL + '/api/orders';
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
+                
+                response.textContent = 
+                    `GET ${url}\n` +
+                    `Status: ${res.status} ${res.statusText}\n` +
+                    `Headers: ${JSON.stringify(Object.fromEntries(res.headers), null, 2)}\n\n` +
+                    `Response:\n${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`;
+                
+                if (res.status === 405) {
+                    status.className = 'status warning';
+                    status.textContent = '⚠️ Endpoint existe (405 Method Not Allowed)';
+                } else if (res.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✅ Endpoint existe e responde';
+                } else if (res.status === 404) {
+                    status.className = 'status error';
+                    status.textContent = '❌ Endpoint não encontrado (404)';
+                } else {
+                    status.className = 'status warning';
+                    status.textContent = `⚠️ Endpoint responde (${res.status})`;
+                }
+                
+            } catch (error) {
+                response.textContent = `Erro: ${error.message}\n\nStack:\n${error.stack}`;
+                status.className = 'status error';
+                status.textContent = '❌ Erro de conexão';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🔄 Verificar Novamente';
+        }
+        
+        // Test 2: Simulate real order
+        async function testOrder() {
+            const btn = document.getElementById('test-order-btn');
+            const status = document.getElementById('order-status');
+            const response = document.getElementById('order-response');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Enviando...';
+            status.className = 'status loading';
+            status.textContent = 'Enviando pedido...';
+            response.style.display = 'block';
+            response.textContent = 'Preparando pedido de teste...';
+            
+            // Get form data
+            const orderData = {
+                clienteId: document.getElementById('cliente-id').value,
+                vendedorNome: document.getElementById('vendedor').value,
+                itens: [{
+                    produtoId: document.getElementById('produto-id').value,
+                    quantidade: parseInt(document.getElementById('quantidade').value),
+                    valorUnitario: parseFloat(document.getElementById('valor').value)
+                }],
+                condicoesPagamento: "A combinar",
+                observacoes: document.getElementById('observacoes').value
+            };
+            
+            try {
+                const url = ERP_URL + '/api/orders';
+                response.textContent = `Enviando POST para: ${url}\n\nDados:\n${JSON.stringify(orderData, null, 2)}\n\nAguarde...`;
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
+                
+                response.textContent = 
+                    `POST ${url}\n` +
+                    `Status: ${res.status} ${res.statusText}\n` +
+                    `Headers: ${JSON.stringify(Object.fromEntries(res.headers), null, 2)}\n\n` +
+                    `Request Data:\n${JSON.stringify(orderData, null, 2)}\n\n` +
+                    `Response:\n${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`;
+                
+                if (res.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✅ Pedido enviado com sucesso!';
+                    updateSolutionSuccess(data);
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `❌ Erro ${res.status}`;
+                    updateSolutionError(res.status, data);
+                }
+                
+            } catch (error) {
+                response.textContent = `Erro: ${error.message}\n\nStack:\n${error.stack}`;
+                status.className = 'status error';
+                status.textContent = '❌ Erro de conexão';
+                updateSolutionError('connection', error.message);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🔄 Tentar Novamente';
+        }
+        
+        // Test 3: Test contact for comparison
+        async function testContact() {
+            const btn = document.getElementById('test-contact-btn');
+            const status = document.getElementById('contact-status');
+            const response = document.getElementById('contact-response');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Testando...';
+            status.className = 'status loading';
+            status.textContent = 'Testando contato...';
+            response.style.display = 'block';
+            
+            const contactData = {
+                name: "Teste Diagnóstico",
+                email: "teste@diagnostico.com",
+                message: "Teste de conectividade do endpoint de contato"
+            };
+            
+            try {
+                const url = ERP_URL + '/api/contact';
+                response.textContent = `Enviando POST para: ${url}\n\nDados:\n${JSON.stringify(contactData, null, 2)}\n\nAguarde...`;
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(contactData)
+                });
+                
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
+                
+                response.textContent = 
+                    `POST ${url}\n` +
+                    `Status: ${res.status} ${res.statusText}\n` +
+                    `Response:\n${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`;
+                
+                if (res.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✅ Contato funciona!';
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `❌ Erro ${res.status}`;
+                }
+                
+            } catch (error) {
+                response.textContent = `Erro: ${error.message}`;
+                status.className = 'status error';
+                status.textContent = '❌ Erro de conexão';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🔄 Testar Novamente';
+        }
+        
+        // Update solution area
+        function updateSolutionSuccess(data) {
+            document.getElementById('solution-area').innerHTML = `
+                <div class="alert success">
+                    <strong>🎉 PEDIDO FUNCIONOU!</strong><br><br>
+                    ✅ Endpoint /api/orders está funcionando<br>
+                    ✅ Pedido criado com sucesso<br>
+                    ✅ Resposta: ${JSON.stringify(data)}<br><br>
+                    <strong>🤔 Se funcionou aqui mas não na loja:</strong><br>
+                    1. Problema pode ser nos dados enviados pela loja<br>
+                    2. Verifique console do navegador na loja (F12)<br>
+                    3. Pode ser timeout ou dados inválidos
+                </div>
+            `;
+        }
+        
+        function updateSolutionError(status, data) {
+            let solution = '';
+            
+            if (status === 404) {
+                solution = `
+                    <div class="alert error">
+                        <strong>❌ ENDPOINT NÃO EXISTE</strong><br><br>
+                        <strong>Problema:</strong> /api/orders retorna 404<br>
+                        <strong>Solução:</strong> Criar o endpoint no seu Firebase<br><br>
+                        <strong>📝 Código necessário no Firebase:</strong><br>
+                        <code>exports.orders = functions.https.onRequest(async (req, res) => { ... });</code>
+                    </div>
+                `;
+            } else if (status === 405) {
+                solution = `
+                    <div class="alert warning">
+                        <strong>⚠️ MÉTODO NÃO PERMITIDO</strong><br><br>
+                        <strong>Problema:</strong> Endpoint existe mas não aceita POST<br>
+                        <strong>Solução:</strong> Configurar método POST no endpoint
+                    </div>
+                `;
+            } else if (status === 500) {
+                solution = `
+                    <div class="alert error">
+                        <strong>❌ ERRO INTERNO DO SERVIDOR</strong><br><br>
+                        <strong>Problema:</strong> Erro no código do Firebase<br>
+                        <strong>Solução:</strong> Verificar logs do Firebase Functions<br>
+                        <strong>Resposta:</strong> ${JSON.stringify(data)}
+                    </div>
+                `;
+            } else if (status === 'connection') {
+                solution = `
+                    <div class="alert error">
+                        <strong>❌ ERRO DE CONEXÃO</strong><br><br>
+                        <strong>Problema:</strong> ${data}<br>
+                        <strong>Soluções:</strong><br>
+                        1. Verificar se o servidor está online<br>
+                        2. Conferir CORS no Firebase<br>
+                        3. Verificar firewall/antivírus
+                    </div>
+                `;
+            } else {
+                solution = `
+                    <div class="alert warning">
+                        <strong>⚠️ ERRO ${status}</strong><br><br>
+                        <strong>Resposta do servidor:</strong><br>
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                `;
+            }
+            
+            document.getElementById('solution-area').innerHTML = solution;
+        }
+        
+        // Auto-run endpoint test
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(testEndpointExists, 1000);
+        });
+    </script>
+</body>
+</html>

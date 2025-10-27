@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Loja Online de Abrasivos Industriais | Comprar Discos Flap e Escovas | Abratecnica</title>
+    <meta name="description" content="Compre online abrasivos industriais de qualidade: discos flap, escovas abrasivas, mantas e lixas. Entrega rápida e preços competitivos. Estoque disponível para marcenaria, metalurgia e indústria automotiva.">
+    <meta name="keywords" content="comprar abrasivos online, loja abrasivos industriais, discos flap preço, escovas abrasivas venda, mantas abrasivas online, lixas industriais comprar, abrasivos marcenaria, metalurgia">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://abratecnica.com/tienda.html">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Loja Online de Abrasivos Industriais | Abratecnica">
+    <meta property="og:description" content="Compre discos flap, escovas abrasivas e mantas industriais com entrega rápida.">
+    <meta property="og:url" content="https://abratecnica.com/tienda.html">
+    <meta property="og:type" content="website">
+    
+    <!-- E-commerce Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Loja Online Abrasivos Industriais",
+        "description": "Compre abrasivos industriais online: discos flap, escovas, mantas e lixas",
+        "url": "https://abratecnica.com/tienda.html",
+        "mainEntity": {
+            "type": "Store",
+            "name": "Abratecnica Loja",
+            "description": "Loja online especializada em abrasivos industriais"
+        }
+    }
+    </script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="assets/img/logo-ficha.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="assets/img/logo-ficha.jpg">
+    <link rel="apple-touch-icon" href="assets/img/logo-ficha.jpg">
+    
+    <!-- Fontes modernas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS Frameworks e Bibliotecas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css">
+    
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Seguridad mejorada -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://viacep.com.br; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://use.fontawesome.com; connect-src 'self' https://viacep.com.br https://studio--firebase-explorer-7hc2p.us-central1.hosted.app https://corsproxy.io http://localhost:8001; img-src 'self' data: blob: https: https://firebasestorage.googleapis.com https://corsproxy.io https://via.placeholder.com http://localhost:8001; media-src 'self' data: blob: https://firebasestorage.googleapis.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <style>
+        /* Estilos para autocompletar CEP */
+        .cep-loading {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .field-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        
+        /* Animação para campos preenchidos automaticamente */
+        input[style*="background-color: rgb(232, 245, 232)"],
+        select[style*="background-color: rgb(232, 245, 232)"] {
+            transition: background-color 2s ease;
+        }
+        
+        /* Melhorar visibilidade do campo CEP */
+        #customer-cep {
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        #customer-cep:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        /* Responsividade para o CEP */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-group[style*="flex: 0 0 150px"] {
+                flex: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="assets/img/logo mejorado.png" alt="Abratecnica" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Início</a>
+                </li>
+                <li class="nav-item">
+                    <a href="productos.html" class="nav-link">Produtos</a>
+                </li>
+                <li class="nav-item">
+                    <a href="tienda.html" class="nav-link active">Loja</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contacto" class="nav-link">Contato</a>
+                </li>
+            </ul>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header de Página -->
+    <section class="page-header">
+        <video class="page-header-video active" autoplay muted loop>
+            <source src="assets/video/1.mp4" type="video/mp4">
+        </video>
+        <video class="page-header-video" autoplay muted loop>
+            <source src="assets/video/2.mp4" type="video/mp4">
+        </video>
+        <video class="page-header-video" autoplay muted loop>
+            <source src="assets/video/3.mp4" type="video/mp4">
+        </video>
+        <video class="page-header-video" autoplay muted loop>
+            <source src="assets/video/4.mp4" type="video/mp4">
+        </video>
+        <video class="page-header-video" autoplay muted loop>
+            <source src="assets/video/5.mp4" type="video/mp4">
+        </video>
+        <div class="container">
+            <h1>Loja Online de Abrasivos Industriais</h1>
+            <p>Compre discos flap, escovas abrasivas, mantas e lixas industriais com a melhor qualidade e entrega rápida</p>
+        </div>
+    </section>
+
+    <!-- Carrito lateral -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Carrinho de Compras</h3>
+            <button class="close-cart" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Los items se agregarán dinámicamente -->
+        </div>
+        <div class="cart-footer">
+            <!-- Calculadora de Frete -->
+            <div class="shipping-calculator">
+                <h4><i class="fas fa-truck"></i> Calcular Frete</h4>
+                <div class="cep-input-group">
+                    <input type="text" id="cepInput" placeholder="Digite seu CEP" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}">
+                    <button type="button" id="calculateShipping" onclick="calculateShipping()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div id="shippingResults" class="shipping-results" style="display: none;"></div>
+            </div>
+            
+            <div class="cart-total">
+                <div class="total-line">
+                    <span>Subtotal:</span>
+                    <span>R$ <span id="cartSubtotal">0,00</span></span>
+                </div>
+                <div class="total-line shipping-line" id="shippingLine" style="display: none;">
+                    <span>Frete:</span>
+                    <span>R$ <span id="shippingCost">0,00</span></span>
+                </div>
+                <div class="total-line total-final">
+                    <strong>Total: R$ <span id="cartTotal">0,00</span></strong>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-checkout" onclick="proceedToCheckout()">
+                Finalizar Pedido
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Checkout -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content checkout-modal">
+            <div class="modal-header">
+                <h2>Finalizar Pedido</h2>
+                <button class="close-modal" onclick="closeCheckoutModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Estados do checkout -->
+            <div id="checkout-loading" class="checkout-loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processando pedido...</p>
+            </div>
+            
+            <div id="checkout-success" class="checkout-success" style="display: none;">
+                <div class="success-icon">✅</div>
+                <h3>Pedido Criado com Sucesso!</h3>
+                <p>Número do Orçamento: <strong id="order-number"></strong></p>
+                <p>Você receberá uma confirmação por email em breve.</p>
+                <button onclick="closeCheckoutModal()" class="btn btn-primary">Continuar Comprando</button>
+            </div>
+            
+            <div id="checkout-error" class="checkout-error" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <h3>Erro ao Processar Pedido</h3>
+                <p id="checkout-error-message">Tente novamente mais tarde.</p>
+                <button onclick="showCheckoutForm()" class="btn btn-primary">Tentar Novamente</button>
+            </div>
+            
+            <!-- Formulário de checkout -->
+            <div id="checkout-form" class="checkout-form">
+                <div class="checkout-steps">
+                    <div class="step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-title">Dados Pessoais</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-title">Pagamento</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-title">Revisão</span>
+                    </div>
+                </div>
+                
+                <!-- Step 1: Dados do Cliente -->
+                <div id="step-1" class="checkout-step active">
+                    <h3>Dados Pessoais</h3>
+                    <form id="customerForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-name">Nome Completo *</label>
+                                <input type="text" id="customer-name" name="name" required>
+                                <div class="field-error" id="name-checkout-error"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-email">Email *</label>
+                                <input type="email" id="customer-email" name="email" required>
+                                <div class="field-error" id="email-checkout-error"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-phone">Telefone *</label>
+                                <input type="tel" id="customer-phone" name="phone" required placeholder="(11) 99999-9999">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-document">CPF/CNPJ *</label>
+                                <input type="text" id="customer-document" name="document" required placeholder="000.000.000-00">
+                                <div class="field-error" id="document-checkout-error"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-company">Empresa</label>
+                                <input type="text" id="customer-company" name="company" placeholder="Razão Social (opcional)">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-company-document">CNPJ da Empresa</label>
+                                <input type="text" id="customer-company-document" name="companyDocument" placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+                        
+                        <!-- Endereço de Entrega -->
+                        <h4 style="margin: 25px 0 15px 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                            <i class="fas fa-map-marker-alt"></i> Endereço de Entrega
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 0 0 150px;">
+                                <label for="customer-cep">CEP *</label>
+                                <input type="text" id="customer-cep" name="cep" required placeholder="00000-000" maxlength="9" onblur="autocompletarEndereco()" onkeypress="if(event.key==='Enter') autocompletarEndereco()">
+                                <div class="cep-loading" id="cep-loading" style="display: none;">
+                                    <i class="fas fa-spinner fa-spin"></i> Buscando...
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-address">Logradouro *</label>
+                                <input type="text" id="customer-address" name="address" required placeholder="Rua, Av, etc - será preenchido automaticamente">
+                                <small class="field-hint">Digite o CEP para autocompletar o logradouro</small>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 100px;">
+                                <label for="customer-number">Número *</label>
+                                <input type="text" id="customer-number" name="number" required placeholder="123">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-complement">Complemento</label>
+                                <input type="text" id="customer-complement" name="complement" placeholder="Apto, Sala, etc">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-neighborhood">Bairro *</label>
+                                <input type="text" id="customer-neighborhood" name="neighborhood" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-city">Cidade *</label>
+                                <input type="text" id="customer-city" name="city" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 80px;">
+                                <label for="customer-state">UF *</label>
+                                <select id="customer-state" name="state" required>
+                                    <option value="">UF</option>
+                                    <option value="AC">AC</option>
+                                    <option value="AL">AL</option>
+                                    <option value="AP">AP</option>
+                                    <option value="AM">AM</option>
+                                    <option value="BA">BA</option>
+                                    <option value="CE">CE</option>
+                                    <option value="DF">DF</option>
+                                    <option value="ES">ES</option>
+                                    <option value="GO">GO</option>
+                                    <option value="MA">MA</option>
+                                    <option value="MT">MT</option>
+                                    <option value="MS">MS</option>
+                                    <option value="MG">MG</option>
+                                    <option value="PA">PA</option>
+                                    <option value="PB">PB</option>
+                                    <option value="PR">PR</option>
+                                    <option value="PE">PE</option>
+                                    <option value="PI">PI</option>
+                                    <option value="RJ">RJ</option>
+                                    <option value="RN">RN</option>
+                                    <option value="RS">RS</option>
+                                    <option value="RO">RO</option>
+                                    <option value="RR">RR</option>
+                                    <option value="SC">SC</option>
+                                    <option value="SP">SP</option>
+                                    <option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="customer-notes">Observações</label>
+                            <textarea id="customer-notes" name="notes" rows="3" placeholder="Informações adicionais sobre o pedido..."></textarea>
+                        </div>
+                    </form>
+                    <div class="step-actions">
+                        <button onclick="nextStep()" class="btn btn-primary">Continuar</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Forma de Pagamento -->
+                <div id="step-2" class="checkout-step">
+                    <h3>Forma de Pagamento</h3>
+                    
+                    <div class="payment-section">
+                        <div class="payment-options">
+                            <div class="payment-option" data-method="pix">
+                                <div class="payment-header">
+                                    <input type="radio" id="payment-pix" name="payment-method" value="pix">
+                                    <label for="payment-pix">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span>PIX</span>
+                                        <small>Aprovação imediata</small>
+                                    </label>
+                                </div>
+                                <div class="payment-discount">
+                                    <span class="discount-badge">-5% de desconto</span>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-option" data-method="boleto">
+                                <div class="payment-header">
+                                    <input type="radio" id="payment-boleto" name="payment-method" value="boleto">
+                                    <label for="payment-boleto">
+                                        <i class="fas fa-barcode"></i>
+                                        <span>Boleto Bancário</span>
+                                        <small>Vencimento em 3 dias úteis</small>
+                                    </label>
+                                </div>
+                                <div class="payment-discount">
+                                    <span class="discount-badge">-3% de desconto</span>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-option" data-method="card-vista">
+                                <div class="payment-header">
+                                    <input type="radio" id="payment-card-vista" name="payment-method" value="card-vista">
+                                    <label for="payment-card-vista">
+                                        <i class="fas fa-credit-card"></i>
+                                        <span>Cartão à Vista</span>
+                                        <small>Débito ou crédito à vista</small>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-option" data-method="card-parcelado">
+                                <div class="payment-header">
+                                    <input type="radio" id="payment-card-parcelado" name="payment-method" value="card-parcelado">
+                                    <label for="payment-card-parcelado">
+                                        <i class="fas fa-credit-card"></i>
+                                        <span>Cartão Parcelado</span>
+                                        <small>Até 12x com juros</small>
+                                    </label>
+                                </div>
+                                <div class="payment-installments" id="installments-options" style="display: none;">
+                                    <label for="installments-select">Escolha o parcelamento:</label>
+                                    <select id="installments-select" name="installments">
+                                        <option value="">Selecione as parcelas</option>
+                                    </select>
+                                    <div class="installment-info" id="installment-info"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-summary">
+                            <div class="summary-line">
+                                <span>Subtotal dos produtos:</span>
+                                <span id="payment-subtotal">R$ 0,00</span>
+                            </div>
+                            <div class="summary-line shipping-summary" id="payment-shipping-line" style="display: none;">
+                                <span>Frete:</span>
+                                <span id="payment-shipping">R$ 0,00</span>
+                            </div>
+                            <div class="summary-line discount-summary" id="payment-discount-line" style="display: none;">
+                                <span class="discount-text">Desconto:</span>
+                                <span class="discount-value" id="payment-discount">-R$ 0,00</span>
+                            </div>
+                            <div class="summary-line total-summary">
+                                <strong>
+                                    <span>Total final:</span>
+                                    <span id="payment-total">R$ 0,00</span>
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-actions">
+                        <button onclick="previousStep()" class="btn btn-secondary">Voltar</button>
+                        <button onclick="nextStep()" class="btn btn-primary">Continuar</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Revisão do Pedido -->
+                <div id="step-3" class="checkout-step">
+                    <h3>Revisão do Pedido</h3>
+                    <div class="order-summary">
+                        <div class="customer-info">
+                            <h4>Dados do Cliente</h4>
+                            <div id="customer-summary"></div>
+                        </div>
+                        <div class="payment-info">
+                            <h4>Forma de Pagamento</h4>
+                            <div id="payment-summary"></div>
+                        </div>
+                        <div class="items-summary">
+                            <h4>Itens do Pedido</h4>
+                            <div id="items-summary"></div>
+                            <div class="total-summary">
+                                <strong>Total: R$ <span id="final-total">0,00</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button onclick="previousStep()" class="btn btn-secondary">Voltar</button>
+                        <button onclick="submitOrder()" class="btn btn-primary">Confirmar Pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros e busca de abrasivos -->
+    <section class="shop-filters">
+        <div class="container">
+            <h2>Encontre os Abrasivos Industriais que Você Precisa</h2>
+            <div class="filters-row">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar discos flap, escovas, mantas abrasivas...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="categoryFilter">
+                        <option value="all">Todas as Categorias de Abrasivos</option>
+                        <option value="discos">Discos Flap e Abrasivos</option>
+                        <option value="escovas">Escovas e Escovilhões Industriais</option>
+                        <option value="mantas">Mantas e Velos Abrasivos</option>
+                        <option value="lixas">Lixas e Papéis de Lixa</option>
+                        <option value="acessorios">Acessórios para Abrasivos</option>
+                    </select>
+                    <select id="priceFilter">
+                        <option value="all">Todos os Preços</option>
+                        <option value="0-100">R$ 0 - R$ 100</option>
+                        <option value="100-300">R$ 100 - R$ 300</option>
+                        <option value="300-500">R$ 300 - R$ 500</option>
+                        <option value="500+">R$ 500+</option>
+                    </select>
+                    <select id="sortBy">
+                        <option value="name">Ordenar por Nome</option>
+                        <option value="price-low">Preço: Menor para Maior</option>
+                        <option value="price-high">Preço: Maior para Menor</option>
+                        <option value="rating">Melhor Avaliados</option>
+                        <option value="popularity">Mais Populares</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loja de abrasivos industriais -->
+    <section class="shop-products">
+        <div class="container">
+            <!-- Loading state -->
+            <div id="shop-loading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Carregando catálogo de abrasivos industriais...</p>
+            </div>
+            
+            <!-- Error state -->
+            <div id="shop-error" class="error-state" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <p>Erro ao carregar o catálogo de abrasivos. Tente novamente mais tarde.</p>
+                <button onclick="loadShopProducts()" class="retry-btn">Tentar Novamente</button>
+            </div>
+
+            <!-- No products state -->
+            <div id="shop-no-products" class="no-products-state" style="display: none;">
+                <div class="no-products-icon">🛒</div>
+                <h3>Nenhum abrasivo industrial encontrado</h3>
+                <p>Tente ajustar os filtros de busca ou explore nossas categorias de discos flap, escovas e mantas abrasivas.</p>
+            </div>
+
+            <!-- Products grid -->
+            <div class="products-grid" id="shopProductsGrid" style="display: none;">
+                <!-- Products will be loaded dynamically from ERP -->
+            </div>
+            
+            <!-- Paginación -->
+            <div class="pagination-container" id="paginationContainer" style="display: none;">
+                <div class="pagination-info" id="paginationInfo">
+                    Mostrando <strong id="itemsRange">1-15</strong> de <strong id="totalItems">0</strong> abrasivos industriais
+                </div>
+                <nav class="pagination-nav">
+                    <ul class="pagination" id="paginationList">
+                        <!-- Pagination buttons will be generated dynamically -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Abratecnica - Abrasivos Industriais</h3>
+                    <p>Especialistas em discos flap, escovas abrasivas e mantas industriais de alta qualidade.</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/abratecnica_ltda/" target="_blank" rel="noopener noreferrer" class="instagram-link">
+                            <i class="fab fa-instagram"></i>
+                            <span class="social-text">@abratecnica_ltda</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="productos.html">Produtos</a></li>
+                        <li><a href="tienda.html">Loja</a></li>
+                        <li><a href="index.html#contacto">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Informações</h4>
+                    <ul>
+                        <li><a href="termos-condicoes.html">Termos e Condições</a></li>
+                        <li><a href="politica-privacidade.html">Política de Privacidade</a></li>
+                        <li><a href="garantias.html">Garantias</a></li>
+                        <li><a href="suporte.html">Suporte</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Abratecnica. Todos os direitos reservados. | By SW infolink</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Libraries - Modernas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/swiper-bundle.min.js"></script>
+    <script src="js/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intersection-observer@0.12.2/intersection-observer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- ERP Integration System -->
+    <script src="erp-error-handler.js"></script>
+    <script src="erp-api-manager.js"></script>
+    <script src="firebase-integration-fix.js"></script>
+    <script src="failed-to-fetch-fix.js"></script>
+    
+    <!-- Configuração de API -->
+    <script src="security-config.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // Ativar proxy de imagem local
+        window.USE_LOCAL_IMAGE_PROXY = true;
+        
+        // Initialize shop products loading when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadShopProducts();
+            
+            // Formatação automática do CEP
+            const cepInput = document.getElementById('customer-cep');
+            if (cepInput) {
+                cepInput.addEventListener('input', function(e) {
+                    let valor = e.target.value.replace(/\D/g, '');
+                    if (valor.length >= 5) {
+                        valor = valor.replace(/^(\d{5})(\d{0,3})$/, '$1-$2');
+                    }
+                    e.target.value = valor;
+                });
+            }
+        });
+        
+        // AUTOCOMPLETAR ENDEREÇO COM CEP
+        async function autocompletarEndereco() {
+            const cepInput = document.getElementById('customer-cep');
+            const loadingDiv = document.getElementById('cep-loading');
+            const addressInput = document.getElementById('customer-address');
+            const neighborhoodInput = document.getElementById('customer-neighborhood');
+            const cityInput = document.getElementById('customer-city');
+            const stateSelect = document.getElementById('customer-state');
+            
+            const cep = cepInput.value.replace(/\D/g, '');
+            
+            // Validar CEP
+            if (cep.length !== 8) {
+                if (cep.length > 0) {
+                    mostrarMensagemCep('CEP deve ter 8 dígitos', 'error');
+                }
+                return;
+            }
+            
+            // Mostrar loading
+            if (loadingDiv) {
+                loadingDiv.style.display = 'block';
+            }
+            
+            try {
+                console.log('🔍 Buscando CEP:', cep);
+                
+                // Tentar API brasileira gratuita ViaCEP
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const dados = await response.json();
+                
+                // Verificar se o CEP foi encontrado
+                if (dados.erro) {
+                    throw new Error('CEP não encontrado');
+                }
+                
+                console.log('✅ Dados do CEP:', dados);
+                
+                // Preencher campos automaticamente
+                if (addressInput && dados.logradouro) {
+                    addressInput.value = dados.logradouro;
+                    addressInput.style.backgroundColor = '#e8f5e8'; // Verde claro para indicar preenchimento automático
+                    setTimeout(() => {
+                        addressInput.style.backgroundColor = '';
+                    }, 2000);
+                }
+                
+                if (neighborhoodInput && dados.bairro) {
+                    neighborhoodInput.value = dados.bairro;
+                    neighborhoodInput.style.backgroundColor = '#e8f5e8';
+                    setTimeout(() => {
+                        neighborhoodInput.style.backgroundColor = '';
+                    }, 2000);
+                }
+                
+                if (cityInput && dados.localidade) {
+                    cityInput.value = dados.localidade;
+                    cityInput.style.backgroundColor = '#e8f5e8';
+                    setTimeout(() => {
+                        cityInput.style.backgroundColor = '';
+                    }, 2000);
+                }
+                
+                if (stateSelect && dados.uf) {
+                    stateSelect.value = dados.uf;
+                    stateSelect.style.backgroundColor = '#e8f5e8';
+                    setTimeout(() => {
+                        stateSelect.style.backgroundColor = '';
+                    }, 2000);
+                }
+                
+                // Mostrar mensagem de sucesso
+                mostrarMensagemCep(`Endereço encontrado: ${dados.localidade}/${dados.uf}`, 'success');
+                
+                // Focar no campo número
+                const numberInput = document.getElementById('customer-number');
+                if (numberInput) {
+                    numberInput.focus();
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar CEP:', error);
+                
+                let mensagem = 'Erro ao buscar CEP. ';
+                if (error.message === 'CEP não encontrado') {
+                    mensagem = 'CEP não encontrado. Verifique o número digitado.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    mensagem = 'Erro de conexão. Preencha o endereço manualmente.';
+                } else {
+                    mensagem += 'Preencha o endereço manualmente.';
+                }
+                
+                mostrarMensagemCep(mensagem, 'error');
+            } finally {
+                // Ocultar loading
+                if (loadingDiv) {
+                    loadingDiv.style.display = 'none';
+                }
+            }
+        }
+        
+        // Mostrar mensagem temporária sobre o CEP
+        function mostrarMensagemCep(mensagem, tipo) {
+            // Remover mensagem anterior se existir
+            const mensagemAnterior = document.querySelector('.cep-message');
+            if (mensagemAnterior) {
+                mensagemAnterior.remove();
+            }
+            
+            const cepInput = document.getElementById('customer-cep');
+            const container = cepInput.parentElement;
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `cep-message ${tipo}`;
+            msgDiv.style.cssText = `
+                font-size: 12px;
+                margin-top: 5px;
+                padding: 5px 8px;
+                border-radius: 4px;
+                animation: fadeIn 0.3s ease;
+                ${tipo === 'success' ? 
+                    'background: #d4edda; color: #155724; border: 1px solid #c3e6cb;' : 
+                    'background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;'
+                }
+            `;
+            
+            const icon = tipo === 'success' ? '✅' : '⚠️';
+            msgDiv.innerHTML = `${icon} ${mensagem}`;
+            
+            container.appendChild(msgDiv);
+            
+            // Remover mensagem após 5 segundos
+            setTimeout(() => {
+                if (msgDiv.parentElement) {
+                    msgDiv.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => msgDiv.remove(), 300);
+                }
+            }, 5000);
+        }
+        
+        async function fetchAddress(cep) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar o CEP');
+                }
+                const data = await response.json();
+                if (data.erro) {
+                    throw new Error('CEP não encontrado');
+                }
+                return data;
+            } catch (error) {
+                console.error(error);
+                alert('⚠️ Erro de conexão. Preencha o endereço manualmente.');
+            }
+        }
+    </script>
+
+    <!-- Botão para criar cliente no Asaas (Teste) -->
+    <button id="create-customer-btn">Crear Cliente</button>
+    <script>
+      document.getElementById('create-customer-btn').addEventListener('click', async () => {
+        const customerData = {
+          name: 'John Doe',
+          cpfCnpj: '24971563792',
+          email: 'john.doe@example.com',
+          mobilePhone: '4799376637',
+          postalCode: '01310-000',
+          addressNumber: '150'
+        };
+
+        try {
+          const response = await fetch('https://api-sandbox.asaas.com/v3/customers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'access_token': 'TU_TOKEN_AQUI'
+            },
+            body: JSON.stringify(customerData)
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert(`Cliente creado con éxito: ID ${result.id}`);
+          } else {
+            console.error('Error al crear cliente:', result);
+            alert('Error al crear cliente. Revisa la consola para más detalles.');
+          }
+        } catch (error) {
+          console.error('Error en la solicitud:', error);
+          alert('Error en la solicitud. Revisa la consola para más detalles.');
+        }
+      });
+    </script>
+</body>
+</html>

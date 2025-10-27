@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Conexão ERP - Outubro 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .status-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-ok { border-left: 5px solid #4CAF50; }
+        .status-error { border-left: 5px solid #f44336; }
+        .status-warning { border-left: 5px solid #ff9800; }
+        .log-area {
+            background: #1e1e1e;
+            color: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #1976D2; }
+        .btn-success { background: #4CAF50; }
+        .btn-danger { background: #f44336; }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .metric {
+            text-align: center;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 4px;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Diagnóstico Urgente - Conexão ERP</h1>
+    <p><strong>Data/Hora:</strong> <span id="datetime"></span></p>
+
+    <div class="status-box status-warning">
+        <h3>⚠️ Problema Detectado</h3>
+        <p>Falha na conexão com ERP detectada. Iniciando diagnóstico completo...</p>
+    </div>
+
+    <div class="metrics">
+        <div class="metric">
+            <div class="metric-value" id="status">🔍</div>
+            <div>Status ERP</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value" id="response-time">--</div>
+            <div>Tempo (ms)</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value" id="products-count">--</div>
+            <div>Produtos</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value" id="network-status">📡</div>
+            <div>Internet</div>
+        </div>
+    </div>
+
+    <div class="status-box">
+        <h3>🚀 Testes Automáticos</h3>
+        <button class="btn" onclick="runCompleteTest()">Executar Diagnóstico</button>
+        <button class="btn btn-success" onclick="testDirectAPI()">Teste Direto API</button>
+        <button class="btn btn-danger" onclick="exportErrorLog()">Exportar Logs</button>
+    </div>
+
+    <div class="log-area" id="diagnostic-log">
+        [Sistema iniciado] Aguardando início do diagnóstico...
+    </div>
+
+    <div class="status-box" id="results-area" style="display: none;">
+        <h3>📊 Resultados</h3>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Configuração da API - mesma do sistema principal
+        const API_CONFIG = {
+            BASE_URL: 'https://studio--firebase-explorer-7hc2p.us-central1.hosted.app',
+            ENDPOINTS: {
+                PRODUCTS: '/api/products',
+                CONTACT: '/api/contact',
+                ORDERS: '/api/orders'
+            },
+            TIMEOUT: 10000
+        };
+
+        let diagnosticLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            diagnosticLog.push({ timestamp, message, type });
+            
+            const logArea = document.getElementById('diagnostic-log');
+            logArea.innerHTML += logEntry + '\n';
+            logArea.scrollTop = logArea.scrollHeight;
+            
+            console.log(logEntry);
+        }
+
+        function updateMetric(id, value) {
+            document.getElementById(id).textContent = value;
+        }
+
+        function updateDateTime() {
+            document.getElementById('datetime').textContent = new Date().toLocaleString('pt-BR');
+        }
+
+        async function testNetworkConnection() {
+            log('🌐 Testando conexão com internet...', 'info');
+            
+            try {
+                const response = await fetch('https://www.google.com/favicon.ico', { 
+                    method: 'HEAD', 
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                updateMetric('network-status', '✅ OK');
+                log('✅ Conexão com internet OK', 'success');
+                return true;
+            } catch (error) {
+                updateMetric('network-status', '❌ ERRO');
+                log('❌ Sem conexão com internet: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function testDirectAPI() {
+            log('🔍 Testando conexão direta com API ERP...', 'info');
+            const startTime = Date.now();
+            
+            try {
+                const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PRODUCTS;
+                log(`📡 Testando URL: ${url}`, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    cache: 'no-cache'
+                });
+
+                const responseTime = Date.now() - startTime;
+                updateMetric('response-time', responseTime);
+
+                log(`📊 Resposta recebida: ${response.status} ${response.statusText}`, 'info');
+                log(`⏱️ Tempo de resposta: ${responseTime}ms`, 'info');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const productCount = data.products ? data.products.length : 0;
+                    
+                    updateMetric('status', '✅ OK');
+                    updateMetric('products-count', productCount);
+                    
+                    log(`✅ API respondeu corretamente!`, 'success');
+                    log(`📦 Produtos encontrados: ${productCount}`, 'success');
+                    log(`📋 Primeira amostra: ${data.products ? JSON.stringify(data.products[0], null, 2) : 'N/A'}`, 'info');
+                    
+                    return { success: true, data, responseTime, productCount };
+                } else {
+                    updateMetric('status', '❌ ERRO');
+                    log(`❌ Erro na API: ${response.status} - ${response.statusText}`, 'error');
+                    
+                    const errorText = await response.text();
+                    log(`📋 Detalhes do erro: ${errorText}`, 'error');
+                    
+                    return { success: false, error: response.statusText, responseTime };
+                }
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateMetric('response-time', responseTime);
+                updateMetric('status', '💥 FALHA');
+                
+                log(`💥 Falha na conexão: ${error.message}`, 'error');
+                log(`🔍 Tipo do erro: ${error.name}`, 'error');
+                log(`📋 Stack trace: ${error.stack}`, 'error');
+                
+                // Teste de DNS
+                if (error.message.includes('Failed to fetch')) {
+                    log('🔍 Possível problema de DNS ou firewall', 'warning');
+                    log('💡 Tentando ping alternativo...', 'info');
+                    
+                    try {
+                        const pingResponse = await fetch('https://httpbin.org/get', { method: 'HEAD', mode: 'no-cors' });
+                        log('✅ Internet funciona - problema específico com a API', 'warning');
+                    } catch (pingError) {
+                        log('❌ Problema geral de conectividade', 'error');
+                    }
+                }
+                
+                return { success: false, error: error.message, responseTime };
+            }
+        }
+
+        async function runCompleteTest() {
+            log('🚀 Iniciando diagnóstico completo...', 'info');
+            log('==========================================', 'info');
+            
+            // Reset metrics
+            updateMetric('status', '🔍');
+            updateMetric('response-time', '--');
+            updateMetric('products-count', '--');
+            updateMetric('network-status', '🔍');
+
+            // Teste 1: Conectividade geral
+            const internetOK = await testNetworkConnection();
+            
+            // Teste 2: API direta
+            const apiResult = await testDirectAPI();
+            
+            // Teste 3: Resumo
+            log('==========================================', 'info');
+            log('📊 RESUMO DO DIAGNÓSTICO:', 'info');
+            log(`🌐 Internet: ${internetOK ? 'OK' : 'ERRO'}`, internetOK ? 'success' : 'error');
+            log(`📡 API ERP: ${apiResult.success ? 'OK' : 'ERRO'}`, apiResult.success ? 'success' : 'error');
+            
+            if (apiResult.success) {
+                log(`⏱️ Tempo: ${apiResult.responseTime}ms`, 'success');
+                log(`📦 Produtos: ${apiResult.productCount}`, 'success');
+                log('✅ SISTEMA FUNCIONANDO NORMALMENTE', 'success');
+            } else {
+                log(`❌ Erro: ${apiResult.error}`, 'error');
+                log('🔧 REQUER INTERVENÇÃO TÉCNICA', 'error');
+            }
+            
+            log('==========================================', 'info');
+            
+            // Mostrar área de resultados
+            document.getElementById('results-area').style.display = 'block';
+            document.getElementById('test-results').innerHTML = `
+                <div class="status-box ${apiResult.success ? 'status-ok' : 'status-error'}">
+                    <h4>${apiResult.success ? '✅ Sistema Operacional' : '❌ Sistema Com Problemas'}</h4>
+                    <p><strong>Status:</strong> ${apiResult.success ? 'OK' : 'ERRO'}</p>
+                    <p><strong>Tempo:</strong> ${apiResult.responseTime || '--'}ms</p>
+                    <p><strong>Produtos:</strong> ${apiResult.productCount || 0}</p>
+                    ${!apiResult.success ? `<p><strong>Erro:</strong> ${apiResult.error}</p>` : ''}
+                </div>
+            `;
+        }
+
+        function exportErrorLog() {
+            const logData = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                diagnosticLog: diagnosticLog,
+                systemInfo: {
+                    online: navigator.onLine,
+                    language: navigator.language,
+                    platform: navigator.platform,
+                    cookieEnabled: navigator.cookieEnabled
+                },
+                apiConfig: API_CONFIG
+            };
+            
+            const blob = new Blob([JSON.stringify(logData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagnostico-erp-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            log('📁 Log exportado com sucesso!', 'success');
+        }
+
+        // Inicialização
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Auto-teste inicial após 2 segundos
+        setTimeout(() => {
+            log('🔄 Executando teste automático inicial...', 'info');
+            runCompleteTest();
+        }, 2000);
+    </script>
+</body>
+</html>
